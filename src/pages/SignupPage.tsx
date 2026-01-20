@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { signup } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import type { SignupFormData } from '../types';
-import './SignupPage.css';
+import './LoginPage.css';
 
 interface FormErrors {
   name?: string;
@@ -56,7 +56,7 @@ export function SignupPage() {
         if (!value.trim()) return '휴대폰 번호를 입력해주세요.';
         const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
         if (!phoneRegex.test(value.replace(/-/g, ''))) {
-          return '휴대폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)';
+          return '휴대폰 번호 형식이 올바르지 않습니다.';
         }
         return undefined;
       default:
@@ -115,112 +115,217 @@ export function SignupPage() {
   };
 
   return (
-    <div className="signup-page">
-      <div className="signup-container">
-        <h1 className="signup-title">회원가입</h1>
-        <p className="signup-subtitle">CutStory에 오신 것을 환영합니다</p>
-
-        <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label htmlFor="name" className="form-label">
-              이름 <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className={`form-input ${errors.name && touched.name ? 'error' : ''}`}
-              placeholder="이름을 입력하세요"
-              value={formData.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={signupMutation.isPending}
-            />
-            {errors.name && touched.name && (
-              <p className="form-error">{errors.name}</p>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="age" className="form-label">
-              나이 <span className="required">*</span>
-            </label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              className={`form-input ${errors.age && touched.age ? 'error' : ''}`}
-              placeholder="나이를 입력하세요"
-              value={formData.age}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              min="1"
-              max="150"
-              disabled={signupMutation.isPending}
-            />
-            {errors.age && touched.age && (
-              <p className="form-error">{errors.age}</p>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="email" className="form-label">
-              이메일 <span className="required">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className={`form-input ${errors.email && touched.email ? 'error' : ''}`}
-              placeholder="example@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={signupMutation.isPending}
-            />
-            {errors.email && touched.email && (
-              <p className="form-error">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="phone" className="form-label">
-              휴대폰 번호 <span className="required">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              className={`form-input ${errors.phone && touched.phone ? 'error' : ''}`}
-              placeholder="010-1234-5678"
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={signupMutation.isPending}
-            />
-            {errors.phone && touched.phone && (
-              <p className="form-error">{errors.phone}</p>
-            )}
-          </div>
-
-          {signupMutation.isError && (
-            <p className="form-error submit-error">
-              회원가입 중 오류가 발생했습니다. 다시 시도해주세요.
+    <div className="auth-page">
+      <div className="auth-container">
+        {/* 왼쪽 비주얼 영역 */}
+        <div className="auth-visual">
+          <div className="auth-visual-content">
+            <div className="visual-badge">Join Us</div>
+            <h2 className="visual-title">
+              새로운 시작을
+              <br />함께해요
+            </h2>
+            <p className="visual-description">
+              CutStory와 함께 특별한 경험을 시작하세요.
+              <br />회원만을 위한 다양한 혜택이 기다리고 있어요.
             </p>
-          )}
+            <div className="visual-features">
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>첫 예약 10% 할인</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>생일 특별 쿠폰 증정</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>우선 예약 혜택</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={signupMutation.isPending}
-          >
-            {signupMutation.isPending ? '가입 중...' : '가입하기'}
-          </button>
-        </form>
+        {/* 오른쪽 폼 영역 */}
+        <div className="auth-form-wrapper">
+          <div className="auth-form-container">
+            <div className="auth-header">
+              <Link to="/" className="auth-logo">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M9 14C9 11.2386 11.2386 9 14 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="14" cy="14" r="3" fill="currentColor"/>
+                </svg>
+                <span>CutStory</span>
+              </Link>
+              <h1 className="auth-title">회원가입</h1>
+              <p className="auth-subtitle">새 계정을 만들어보세요</p>
+            </div>
 
-        <p className="signup-footer">
-          이미 계정이 있으신가요? <Link to="/login">로그인</Link>
-        </p>
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-row">
+                <div className="form-field">
+                  <label htmlFor="name" className="form-label">
+                    이름 <span className="required">*</span>
+                  </label>
+                  <div className="input-wrapper">
+                    <span className="input-icon">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <circle cx="9" cy="5" r="3" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M3 16C3 12.6863 5.68629 10 9 10C12.3137 10 15 12.6863 15 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      className={`form-input ${errors.name && touched.name ? 'error' : ''}`}
+                      placeholder="이름을 입력하세요"
+                      value={formData.name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      disabled={signupMutation.isPending}
+                    />
+                  </div>
+                  {errors.name && touched.name && (
+                    <p className="form-error">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="form-field form-field-small">
+                  <label htmlFor="age" className="form-label">
+                    나이 <span className="required">*</span>
+                  </label>
+                  <div className="input-wrapper">
+                    <span className="input-icon">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M6 1V4M12 1V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M3 7H15" stroke="currentColor" strokeWidth="1.5"/>
+                      </svg>
+                    </span>
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      className={`form-input ${errors.age && touched.age ? 'error' : ''}`}
+                      placeholder="나이"
+                      value={formData.age}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      min="1"
+                      max="150"
+                      disabled={signupMutation.isPending}
+                    />
+                  </div>
+                  {errors.age && touched.age && (
+                    <p className="form-error">{errors.age}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="email" className="form-label">
+                  이메일 <span className="required">*</span>
+                </label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M3 6L9 10.5L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className={`form-input ${errors.email && touched.email ? 'error' : ''}`}
+                    placeholder="example@email.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.email && touched.email && (
+                  <p className="form-error">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="phone" className="form-label">
+                  휴대폰 번호 <span className="required">*</span>
+                </label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="4" y="1" width="10" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M7 14H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    className={`form-input ${errors.phone && touched.phone ? 'error' : ''}`}
+                    placeholder="010-1234-5678"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.phone && touched.phone && (
+                  <p className="form-error">{errors.phone}</p>
+                )}
+              </div>
+
+              {signupMutation.isError && (
+                <div className="form-error-box">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
+                  </svg>
+                  <span>회원가입 중 오류가 발생했습니다. 다시 시도해주세요.</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={signupMutation.isPending}
+              >
+                {signupMutation.isPending ? (
+                  <>
+                    <span className="button-spinner" />
+                    가입 중...
+                  </>
+                ) : (
+                  '가입하기'
+                )}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              <p>
+                이미 계정이 있으신가요? <Link to="/login" className="auth-link">로그인</Link>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

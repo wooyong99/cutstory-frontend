@@ -84,70 +84,156 @@ export function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h1 className="login-title">로그인</h1>
-        <p className="login-subtitle">계정에 로그인하세요</p>
-
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-field">
-            <label htmlFor="email" className="form-label">
-              이메일
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className={`form-input ${errors.email && touched.email ? 'error' : ''}`}
-              placeholder="example@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={loginMutation.isPending}
-            />
-            {errors.email && touched.email && (
-              <p className="form-error">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="password" className="form-label">
-              비밀번호
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className={`form-input ${errors.password && touched.password ? 'error' : ''}`}
-              placeholder="비밀번호를 입력하세요"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={loginMutation.isPending}
-            />
-            {errors.password && touched.password && (
-              <p className="form-error">{errors.password}</p>
-            )}
-          </div>
-
-          {loginMutation.isError && (
-            <p className="form-error submit-error">
-              이메일 또는 비밀번호가 올바르지 않습니다.
+    <div className="auth-page">
+      <div className="auth-container">
+        {/* 왼쪽 비주얼 영역 */}
+        <div className="auth-visual">
+          <div className="auth-visual-content">
+            <div className="visual-badge">Welcome Back</div>
+            <h2 className="visual-title">
+              다시 만나서
+              <br />반가워요
+            </h2>
+            <p className="visual-description">
+              로그인하고 예약을 관리하세요.
+              <br />특별한 혜택이 기다리고 있어요.
             </p>
-          )}
+            <div className="visual-features">
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>간편한 예약 관리</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>예약 알림 서비스</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M16.667 5L7.5 14.167L3.333 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                <span>회원 전용 할인 혜택</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={loginMutation.isPending}
-          >
-            {loginMutation.isPending ? '로그인 중...' : '로그인'}
-          </button>
-        </form>
+        {/* 오른쪽 폼 영역 */}
+        <div className="auth-form-wrapper">
+          <div className="auth-form-container">
+            <div className="auth-header">
+              <Link to="/" className="auth-logo">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M9 14C9 11.2386 11.2386 9 14 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="14" cy="14" r="3" fill="currentColor"/>
+                </svg>
+                <span>CutStory</span>
+              </Link>
+              <h1 className="auth-title">로그인</h1>
+              <p className="auth-subtitle">계정에 로그인하세요</p>
+            </div>
 
-        <p className="login-footer">
-          계정이 없으신가요? <Link to="/signup">회원가입</Link>
-        </p>
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-field">
+                <label htmlFor="email" className="form-label">
+                  이메일
+                </label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M3 6L9 10.5L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className={`form-input ${errors.email && touched.email ? 'error' : ''}`}
+                    placeholder="example@email.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={loginMutation.isPending}
+                  />
+                </div>
+                {errors.email && touched.email && (
+                  <p className="form-error">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="password" className="form-label">
+                  비밀번호
+                </label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="3" y="7" width="12" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M6 7V5C6 3.34315 7.34315 2 9 2C10.6569 2 12 3.34315 12 5V7" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className={`form-input ${errors.password && touched.password ? 'error' : ''}`}
+                    placeholder="비밀번호를 입력하세요"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={loginMutation.isPending}
+                  />
+                </div>
+                {errors.password && touched.password && (
+                  <p className="form-error">{errors.password}</p>
+                )}
+              </div>
+
+              {loginMutation.isError && (
+                <div className="form-error-box">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
+                  </svg>
+                  <span>이메일 또는 비밀번호가 올바르지 않습니다.</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? (
+                  <>
+                    <span className="button-spinner" />
+                    로그인 중...
+                  </>
+                ) : (
+                  '로그인'
+                )}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              <p>
+                계정이 없으신가요? <Link to="/signup" className="auth-link">회원가입</Link>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
