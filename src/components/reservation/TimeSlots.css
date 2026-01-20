@@ -1,0 +1,133 @@
+.time-slots-container {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.time-slots-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.time-slots-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.time-slots-duration {
+  font-size: 0.875rem;
+  color: #6366f1;
+  font-weight: 500;
+  margin: 0;
+}
+
+.time-slots-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 0.75rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (min-width: 480px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.time-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  background-color: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 56px;
+}
+
+.time-slot:hover:not(:disabled):not(.selected) {
+  background-color: #f3f4f6;
+  border-color: #6366f1;
+}
+
+.time-slot:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.time-slot.selected {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
+/* 이미 예약된 슬롯 */
+.time-slot.reserved {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.time-slot.reserved:hover {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+/* 연속 시간 부족으로 시작 불가 */
+.time-slot.unavailable {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.time-slot.unavailable:hover {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+}
+
+.time-slot-time {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.time-slot-status {
+  font-size: 0.625rem;
+  color: #9ca3af;
+  margin-top: 0.125rem;
+}
+
+.time-slot.selected .time-slot-status {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.time-slot.unavailable .time-slot-status {
+  color: #b45309;
+}

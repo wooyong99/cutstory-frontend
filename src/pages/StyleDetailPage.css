@@ -1,0 +1,335 @@
+.style-detail-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 120px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #374151;
+}
+
+.style-detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.style-detail-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+}
+
+.style-detail-description {
+  color: #6b7280;
+  margin: 0 0 1rem;
+}
+
+.style-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.style-detail-duration {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+}
+
+.style-detail-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+/* 섹션 타이틀 */
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.75rem;
+}
+
+/* 옵션 섹션 */
+.options-section {
+  margin-bottom: 1.5rem;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.option-card:hover {
+  border-color: #6366f1;
+}
+
+.option-card.selected {
+  border-color: #6366f1;
+  background-color: #f5f3ff;
+}
+
+.option-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.option-card.selected .option-checkbox {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+.checkmark {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.option-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.option-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.option-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.option-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.option-price {
+  font-weight: 600;
+  color: #6366f1;
+  font-size: 0.875rem;
+}
+
+.option-duration {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* 선택 요약 */
+.selection-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.summary-value.highlight {
+  font-size: 1.125rem;
+  color: #6366f1;
+}
+
+/* 예약 섹션 */
+.reservation-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 예약 요약 바 */
+.reservation-summary {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+}
+
+@media (min-width: 768px) {
+  .reservation-summary {
+    padding: 1rem 2rem;
+  }
+}
+
+.summary-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.summary-date {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.summary-time-range {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.summary-time-range strong {
+  color: #6366f1;
+}
+
+.summary-price {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.reservation-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.reservation-button:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+.reservation-button:active:not(:disabled) {
+  background-color: #4338ca;
+}
+
+.reservation-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 토스트 */
+.success-toast,
+.error-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 100;
+  animation: slideUp 0.3s ease-out;
+}
+
+.success-toast {
+  background-color: #10b981;
+  color: white;
+}
+
+.error-toast {
+  background-color: #ef4444;
+  color: white;
+}
+
+.success-toast p,
+.error-toast p {
+  margin: 0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

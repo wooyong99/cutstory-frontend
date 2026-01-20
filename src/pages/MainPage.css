@@ -1,0 +1,146 @@
+.main-page {
+  padding-bottom: 2rem;
+}
+
+.main-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.main-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem;
+}
+
+.main-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* 카테고리 섹션 */
+.menu-category {
+  margin-bottom: 2rem;
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #6366f1;
+  display: inline-block;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* 메뉴 카드 */
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #6366f1;
+}
+
+.menu-card:active {
+  transform: translateY(0);
+}
+
+.menu-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.menu-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu-card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.menu-card-description {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.menu-card-duration {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.menu-card-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.price-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+.price-note {
+  font-size: 0.875rem;
+  color: #6366f1;
+}
+
+/* 옵션 태그 */
+.menu-card-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.option-tag {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* 반응형 */
+@media (min-width: 768px) {
+  .menu-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .menu-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
