@@ -2,7 +2,6 @@ import {
   SLOT_DURATION_MINUTES,
   OPENING_HOUR,
   CLOSING_HOUR,
-  type TimeSlot,
   type MenuItem,
   type MenuOption,
   type SelectedMenu,
@@ -77,63 +76,6 @@ export function calculateEndTime(startTime: string, durationMinutes: number): st
   const endHours = Math.floor(totalMinutes / 60);
   const endMinutes = totalMinutes % 60;
   return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-}
-
-/**
- * 특정 시작 시간에서 연속 슬롯이 가능한지 확인
- * @param slots 전체 슬롯 배열
- * @param startIndex 시작 슬롯 인덱스
- * @param requiredSlots 필요한 슬롯 수
- */
-export function canStartAt(
-  slots: TimeSlot[],
-  startIndex: number,
-  requiredSlots: number
-): boolean {
-  // 범위 초과 확인
-  if (startIndex + requiredSlots > slots.length) {
-    return false;
-  }
-
-  // 연속 슬롯이 모두 available인지 확인
-  for (let i = 0; i < requiredSlots; i++) {
-    const slot = slots[startIndex + i];
-    if (slot.status === 'reserved') {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * 예약 가능한 시작 시간 슬롯들 계산
- * @param reservedTimes 이미 예약된 시간 목록
- * @param requiredSlots 필요한 슬롯 수
- */
-export function calculateAvailableSlots(
-  reservedTimes: string[],
-  requiredSlots: number
-): TimeSlot[] {
-  const allTimes = generateAllSlotTimes();
-
-  // 기본 슬롯 상태 생성
-  const slots: TimeSlot[] = allTimes.map((time) => ({
-    time,
-    status: reservedTimes.includes(time) ? 'reserved' : 'available',
-    isStartable: true,
-  }));
-
-  // 각 슬롯이 시작 시간으로 선택 가능한지 계산
-  slots.forEach((slot, index) => {
-    if (slot.status === 'reserved') {
-      slot.isStartable = false;
-    } else {
-      slot.isStartable = canStartAt(slots, index, requiredSlots);
-    }
-  });
-
-  return slots;
 }
 
 /**

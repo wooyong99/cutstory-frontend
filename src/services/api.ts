@@ -1,5 +1,5 @@
-import type { MenuItem, TimeSlot, User, SignupFormData, Reservation, MenuCategory } from '../types';
-import { calculateAvailableSlots, calculateEndTime, generateAllSlotTimes } from '../utils/timeSlot';
+import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, Reservation, MenuCategory } from '../types';
+import { calculateEndTime, generateAllSlotTimes } from '../utils/timeSlot';
 
 // API_BASE_URL은 실제 API 연동 시 사용
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -139,26 +139,25 @@ export async function fetchMenuItemById(id: string): Promise<MenuItem | null> {
 }
 
 /**
- * 시간 슬롯 조회 (연속 슬롯 가능 여부 포함)
- * @param requiredSlots 필요한 슬롯 수 (30분 단위)
- * @param date 날짜
+ * 날짜별 시간 슬롯 조회
+ * @param date 날짜 (YYYY-MM-DD)
+ * @returns 해당 날짜의 시간 슬롯 목록
  */
-export async function fetchTimeSlots(
-  requiredSlots: number,
-  date: string
-): Promise<TimeSlot[]> {
+export async function fetchDateSlots(date: string): Promise<DateSlotsResponse> {
   await delay(400);
 
   const reservedTimes = mockReservedSlots[date] || [];
-  return calculateAvailableSlots(reservedTimes, requiredSlots);
-}
+  const allTimes = generateAllSlotTimes();
 
-/**
- * 예약된 시간 목록만 조회 (raw data)
- */
-export async function fetchReservedTimes(date: string): Promise<string[]> {
-  await delay(200);
-  return mockReservedSlots[date] || [];
+  const slots: TimeSlot[] = allTimes.map((time) => ({
+    time,
+    available: !reservedTimes.includes(time),
+  }));
+
+  return {
+    date,
+    slots,
+  };
 }
 
 export async function signup(data: SignupFormData): Promise<User> {

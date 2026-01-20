@@ -60,12 +60,15 @@ export interface SelectedMenu {
 }
 
 // 예약 관련 타입
-export type TimeSlotStatus = 'available' | 'reserved' | 'selected' | 'unavailable';
-
 export interface TimeSlot {
   time: string; // "10:00", "10:30" 등 (30분 단위)
-  status: TimeSlotStatus;
-  isStartable?: boolean; // 시작 시간으로 선택 가능한지 (연속 슬롯 고려)
+  available: boolean;
+}
+
+// API에서 날짜별 슬롯 응답
+export interface DateSlotsResponse {
+  date: string; // "2026-01-20"
+  slots: TimeSlot[];
 }
 
 export interface Reservation {
