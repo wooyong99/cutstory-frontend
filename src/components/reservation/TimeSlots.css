@@ -1,133 +1,131 @@
+/* 시간 슬롯 컨테이너 */
 .time-slots-container {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem;
+  background-color: transparent;
+  border-radius: 16px;
 }
 
-.time-slots-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+/* 시간 섹션 (오전/오후) */
+.time-slots-section {
+  margin-bottom: 1.25rem;
 }
 
-.time-slots-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
+.time-slots-section:last-child {
+  margin-bottom: 0;
 }
 
-.time-slots-duration {
-  font-size: 0.875rem;
-  color: #6366f1;
-  font-weight: 500;
-  margin: 0;
-}
-
-.time-slots-hint {
+.time-slots-period {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   font-size: 0.75rem;
+  font-weight: 700;
   color: #6b7280;
-  margin: 0 0 0.75rem;
+  margin-bottom: 0.625rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
+/* 시간 그리드 */
 .time-slots-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
   gap: 0.5rem;
 }
 
-@media (min-width: 480px) {
-  .time-slots-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .time-slots-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 1200px) {
-  .time-slots-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
+/* 시간 버튼 */
 .time-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 0.5rem;
+  padding: 0.625rem 0.5rem;
   background-color: #f9fafb;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
   cursor: pointer;
-  transition: all 0.15s;
-  min-height: 56px;
+  transition: all 0.2s ease;
+  text-align: center;
 }
 
 .time-slot:hover:not(:disabled):not(.selected) {
-  background-color: #f3f4f6;
-  border-color: #6366f1;
+  background-color: #eef2ff;
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
 }
 
 .time-slot:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
+/* 선택된 시간 */
 .time-slot.selected {
-  background-color: #6366f1;
-  border-color: #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: transparent;
   color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
 }
 
-/* 이미 예약된 슬롯 */
-.time-slot.reserved {
-  background-color: #f9fafb;
-  border-color: #e5e7eb;
+/* 비활성화된 시간 */
+.time-slot.disabled {
+  background-color: #f3f4f6;
+  border-color: transparent;
+  color: #d1d5db;
   cursor: not-allowed;
-  opacity: 0.5;
+  position: relative;
 }
 
-.time-slot.reserved:hover {
+.time-slot.disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background-color: #d1d5db;
+}
+
+/* 빈 상태 */
+.time-slots-container .empty-state {
+  padding: 1.5rem;
   background-color: #f9fafb;
-  border-color: #e5e7eb;
+  border-radius: 12px;
 }
 
-/* 연속 시간 부족으로 시작 불가 */
-.time-slot.unavailable {
-  background-color: #fef3c7;
-  border-color: #fcd34d;
-  cursor: not-allowed;
-  opacity: 0.7;
+/* 스켈레톤 */
+.time-slots-container .slot-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 0.5rem;
 }
 
-.time-slot.unavailable:hover {
-  background-color: #fef3c7;
-  border-color: #fcd34d;
+.time-slots-container .slot-skeleton-item {
+  height: 40px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: shimmer 1.5s infinite;
 }
 
-.time-slot-time {
-  font-size: 0.9375rem;
-  font-weight: 600;
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-.time-slot-status {
-  font-size: 0.625rem;
-  color: #9ca3af;
-  margin-top: 0.125rem;
-}
+/* 모바일 대응 */
+@media (max-width: 380px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
 
-.time-slot.selected .time-slot-status {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.time-slot.unavailable .time-slot-status {
-  color: #b45309;
+  .time-slot {
+    padding: 0.5rem 0.375rem;
+    font-size: 0.8125rem;
+  }
 }

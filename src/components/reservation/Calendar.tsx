@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import './Calendar.css';
 
 interface CalendarProps {
@@ -7,93 +7,83 @@ interface CalendarProps {
 }
 
 export function Calendar({ selectedDate, onSelectDate }: CalendarProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const { days, monthLabel } = useMemo(() => {
-    const year = today.getFullYear();
-    const month = today.getMonth();
-
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDayOfWeek = firstDay.getDay();
-
-    const daysInMonth: Array<{
-      date: Date | null;
+  const days = useMemo(() => {
+    const result: Array<{
+      date: Date;
       dateString: string;
+      dayOfWeek: number;
+      dayLabel: string;
+      dateLabel: string;
+      monthLabel: string;
       isToday: boolean;
-      isPast: boolean;
     }> = [];
 
-    // 이전 달의 빈 칸
-    for (let i = 0; i < startDayOfWeek; i++) {
-      daysInMonth.push({ date: null, dateString: '', isToday: false, isPast: true });
+    // 오늘부터 30일간의 날짜 생성
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dayOfWeek = date.getDay();
+
+      const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+
+      result.push({
+        date,
+        dateString: formatDate(date),
+        dayOfWeek,
+        dayLabel: weekDays[dayOfWeek],
+        dateLabel: String(date.getDate()),
+        monthLabel: `${date.getMonth() + 1}월`,
+        isToday: i === 0,
+      });
     }
 
-    // 현재 달의 날짜
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const date = new Date(year, month, day);
-      const dateString = formatDate(date);
-      const isToday =
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear();
-      const isPast = date < today;
-
-      daysInMonth.push({ date, dateString, isToday, isPast });
-    }
-
-    const monthNames = [
-      '1월', '2월', '3월', '4월', '5월', '6월',
-      '7월', '8월', '9월', '10월', '11월', '12월',
-    ];
-
-    return {
-      days: daysInMonth,
-      monthLabel: `${year}년 ${monthNames[month]}`,
-    };
+    return result;
   }, []);
 
-  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+  // 선택된 날짜로 스크롤
+  useEffect(() => {
+    if (selectedDate && scrollContainerRef.current) {
+      const selectedElement = scrollContainerRef.current.querySelector(
+        `[data-date="${selectedDate}"]`
+      );
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }
+    }
+  }, [selectedDate]);
 
   return (
-    <div className="calendar">
-      <div className="calendar-header">
-        <h3 className="calendar-month">{monthLabel}</h3>
-      </div>
-      <div className="calendar-weekdays">
-        {weekDays.map((day, index) => (
-          <div
-            key={day}
-            className={`calendar-weekday ${index === 0 ? 'sunday' : ''} ${index === 6 ? 'saturday' : ''}`}
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-      <div className="calendar-days">
+    <div className="date-picker">
+      <div className="date-picker-scroll" ref={scrollContainerRef}>
         {days.map((day, index) => {
-          if (!day.date) {
-            return <div key={`empty-${index}`} className="calendar-day empty" />;
-          }
-
           const isSelected = selectedDate === day.dateString;
-          const dayOfWeek = day.date.getDay();
-          const isSunday = dayOfWeek === 0;
-          const isSaturday = dayOfWeek === 6;
+          const isSunday = day.dayOfWeek === 0;
+          const isSaturday = day.dayOfWeek === 6;
+          const showMonth = index === 0 || days[index - 1].date.getMonth() !== day.date.getMonth();
 
           return (
-            <button
-              key={day.dateString}
-              type="button"
-              className={`calendar-day ${isSelected ? 'selected' : ''} ${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''} ${isSunday ? 'sunday' : ''} ${isSaturday ? 'saturday' : ''}`}
-              onClick={() => !day.isPast && onSelectDate(day.dateString)}
-              disabled={day.isPast}
-              aria-label={`${day.date.getMonth() + 1}월 ${day.date.getDate()}일`}
-              aria-pressed={isSelected}
-            >
-              {day.date.getDate()}
-            </button>
+            <div key={day.dateString} className="date-item-wrapper">
+              {showMonth && <span className="date-month-label">{day.monthLabel}</span>}
+              <button
+                type="button"
+                data-date={day.dateString}
+                className={`date-item ${isSelected ? 'selected' : ''} ${day.isToday ? 'today' : ''} ${isSunday ? 'sunday' : ''} ${isSaturday ? 'saturday' : ''}`}
+                onClick={() => onSelectDate(day.dateString)}
+                aria-label={`${day.date.getMonth() + 1}월 ${day.date.getDate()}일 ${day.dayLabel}요일`}
+                aria-pressed={isSelected}
+              >
+                <span className="date-day-label">{day.dayLabel}</span>
+                <span className="date-number">{day.dateLabel}</span>
+              </button>
+            </div>
           );
         })}
       </div>

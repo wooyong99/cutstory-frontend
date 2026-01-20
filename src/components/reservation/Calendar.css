@@ -1,107 +1,154 @@
-.calendar {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem;
-}
-
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.calendar-month {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-}
-
-.calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.calendar-weekday {
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #6b7280;
-  padding: 0.5rem 0;
-}
-
-.calendar-weekday.sunday {
-  color: #dc2626;
-}
-
-.calendar-weekday.saturday {
-  color: #2563eb;
-}
-
-.calendar-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-}
-
-.calendar-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  border: none;
+/* 날짜 선택기 */
+.date-picker {
   background-color: transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: #374151;
+  border-radius: 16px;
 }
 
-.calendar-day:hover:not(:disabled):not(.selected) {
-  background-color: #f3f4f6;
+.date-picker-scroll {
+  display: flex;
+  gap: 0.625rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.25rem;
+  margin: -0.25rem;
 }
 
-.calendar-day:active:not(:disabled) {
-  transform: scale(0.95);
+.date-picker-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-.calendar-day.empty {
-  cursor: default;
+.date-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
 }
 
-.calendar-day.today {
+.date-month-label {
+  font-size: 0.6875rem;
+  color: #6366f1;
   font-weight: 600;
-  border: 2px solid #6366f1;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
-.calendar-day.selected {
-  background-color: #6366f1;
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 64px;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-item:hover:not(.selected) {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.date-item:active {
+  transform: scale(0.96);
+}
+
+/* 오늘 표시 */
+.date-item.today {
+  background-color: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.date-item.today .date-day-label {
+  color: #6366f1;
+}
+
+.date-item.today .date-number {
+  color: #4f46e5;
+}
+
+/* 선택된 날짜 */
+.date-item.selected {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+.date-item.selected .date-day-label,
+.date-item.selected .date-number {
   color: white;
-  font-weight: 500;
 }
 
-.calendar-day.past {
-  color: #d1d5db;
-  cursor: not-allowed;
+/* 요일 라벨 */
+.date-day-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-.calendar-day.sunday:not(.selected) {
+/* 날짜 숫자 */
+.date-number {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+/* 일요일 */
+.date-item.sunday .date-day-label {
+  color: #f87171;
+}
+
+.date-item.sunday .date-number {
   color: #dc2626;
 }
 
-.calendar-day.sunday.past {
-  color: #fecaca;
+.date-item.sunday.today {
+  background-color: #fef2f2;
+  border-color: #fecaca;
 }
 
-.calendar-day.saturday:not(.selected) {
+.date-item.sunday.selected .date-day-label,
+.date-item.sunday.selected .date-number {
+  color: white;
+}
+
+.date-item.sunday.selected {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* 토요일 */
+.date-item.saturday .date-day-label {
+  color: #60a5fa;
+}
+
+.date-item.saturday .date-number {
   color: #2563eb;
 }
 
-.calendar-day.saturday.past {
-  color: #bfdbfe;
+.date-item.saturday.today {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.date-item.saturday.selected .date-day-label,
+.date-item.saturday.selected .date-number {
+  color: white;
+}
+
+.date-item.saturday.selected {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
