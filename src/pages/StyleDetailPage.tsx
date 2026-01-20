@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchMenuItemById, fetchTimeSlots, createReservation } from '../services/api';
+import { fetchMenuItemById, fetchDateSlots, createReservation } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { useReservationStore } from '../stores/reservationStore';
 import { Loading, ErrorMessage } from '../components/common';
@@ -13,8 +13,14 @@ import {
   formatPrice,
   formatTimeRange,
 } from '../utils/timeSlot';
-import type { MenuOption, SelectedMenu } from '../types';
+import { CATEGORY_LABELS, type MenuOption, type SelectedMenu, type MenuCategory } from '../types';
 import './StyleDetailPage.css';
+
+const CATEGORY_ICONS: Record<MenuCategory, string> = {
+  cut: '✂️',
+  color: '🎨',
+  perm: '💫',
+};
 
 export function StyleDetailPage() {
   const { styleId: menuId } = useParams<{ styleId: string }>();
@@ -49,15 +55,15 @@ export function StyleDetailPage() {
     return calculateSelectedMenu(menuItem, selectedOptions);
   }, [menuItem, selectedOptionIds]);
 
-  // 시간 슬롯 조회 (연속 슬롯 필요 수 기반)
+  // 시간 슬롯 조회 (날짜 선택 시)
   const {
-    data: slots,
+    data: slotsResponse,
     isLoading: isSlotsLoading,
     refetch: refetchSlots,
   } = useQuery({
-    queryKey: ['timeSlots', selectedMenu?.requiredSlots, selectedDate],
-    queryFn: () => fetchTimeSlots(selectedMenu!.requiredSlots, selectedDate!),
-    enabled: !!selectedMenu && !!selectedDate,
+    queryKey: ['dateSlots', selectedDate],
+    queryFn: () => fetchDateSlots(selectedDate!),
+    enabled: !!selectedDate,
   });
 
   // 예약 생성
@@ -75,7 +81,7 @@ export function StyleDetailPage() {
       resetSelection();
       setSelectedOptionIds([]);
       queryClient.invalidateQueries({
-        queryKey: ['timeSlots', selectedMenu?.requiredSlots, selectedDate],
+        queryKey: ['dateSlots', selectedDate],
       });
       setTimeout(() => setShowSuccessToast(false), 3000);
     },
@@ -89,7 +95,12 @@ export function StyleDetailPage() {
     return () => resetSelection();
   }, []);
 
-  // 옵션 변경 시 선택된 시간 초기화 (슬롯 수가 변경되므로)
+  // 날짜 변경 시 시간 초기화
+  useEffect(() => {
+    setSelectedTime(null);
+  }, [selectedDate]);
+
+  // 옵션 변경 시 선택된 시간 초기화
   const handleOptionToggle = (optionId: string) => {
     setSelectedOptionIds((prev) =>
       prev.includes(optionId) ? prev.filter((id) => id !== optionId) : [...prev, optionId]
@@ -126,91 +137,201 @@ export function StyleDetailPage() {
       ? calculateEndTime(selectedTime, selectedMenu.totalDurationMinutes)
       : null;
 
+  // 임시 이미지 URL (실제로는 menuItem.imageUrl 사용)
+  const imageUrl = menuItem.imageUrl || `https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop`;
+
+  // 예약 진행 상태 계산
+  const bookingProgress = {
+    hasDate: !!selectedDate,
+    hasTime: !!selectedTime,
+    isComplete: !!selectedDate && !!selectedTime,
+  };
+
   return (
-    <div className="style-detail-page">
-      <Link to="/" className="back-link">
-        ← 목록으로
+    <div className="detail-page">
+      {/* 뒤로가기 */}
+      <Link to="/" className="back-button">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </Link>
 
-      <header className="style-detail-header">
-        <h1 className="style-detail-title">{menuItem.name}</h1>
-        {menuItem.description && (
-          <p className="style-detail-description">{menuItem.description}</p>
-        )}
-        <div className="style-detail-meta">
-          <span className="style-detail-duration">
-            기본 소요시간: {formatDuration(menuItem.durationMinutes)}
-          </span>
-          <span className="style-detail-price">
-            {formatPrice(menuItem.basePrice)}
-            {menuItem.priceNote && menuItem.priceNote}
-          </span>
-        </div>
-      </header>
+      {/* 히어로 이미지 */}
+      <div className="detail-hero">
+        <img src={imageUrl} alt={menuItem.name} className="detail-hero-image" />
+        <div className="detail-hero-overlay" />
+        <span className="detail-category-badge">
+          {CATEGORY_ICONS[menuItem.category]} {CATEGORY_LABELS[menuItem.category]}
+        </span>
+      </div>
 
-      {/* 옵션 선택 */}
-      {menuItem.options && menuItem.options.length > 0 && (
-        <section className="options-section">
-          <h2 className="section-title">추가 옵션</h2>
-          <div className="options-list">
-            {menuItem.options.map((option) => (
-              <OptionCard
-                key={option.id}
-                option={option}
-                isSelected={selectedOptionIds.includes(option.id)}
-                onToggle={() => handleOptionToggle(option.id)}
+      {/* 메인 콘텐츠 */}
+      <div className="detail-content">
+        {/* 메뉴 정보 카드 */}
+        <div className="detail-info-card">
+          <div className="info-card-header">
+            <div className="info-card-title-group">
+              <h1 className="info-card-title">{menuItem.name}</h1>
+              {menuItem.description && (
+                <p className="info-card-description">{menuItem.description}</p>
+              )}
+            </div>
+            <div className="info-card-price-group">
+              <span className="info-card-price">
+                {formatPrice(menuItem.basePrice)}
+                {menuItem.priceNote && <span className="price-suffix">{menuItem.priceNote}</span>}
+              </span>
+            </div>
+          </div>
+
+          <div className="info-card-meta">
+            <div className="meta-item">
+              <span className="meta-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M8 4.5V8L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </span>
+              <span className="meta-label">소요시간</span>
+              <span className="meta-value">{formatDuration(menuItem.durationMinutes)}</span>
+            </div>
+          </div>
+
+          {/* 옵션 선택 */}
+          {menuItem.options && menuItem.options.length > 0 && (
+            <div className="options-section">
+              <div className="section-header">
+                <span className="section-icon">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 1.5V16.5M1.5 9H16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </span>
+                <h3 className="section-title">추가 옵션</h3>
+              </div>
+              <div className="options-grid">
+                {menuItem.options.map((option) => (
+                  <OptionCard
+                    key={option.id}
+                    option={option}
+                    isSelected={selectedOptionIds.includes(option.id)}
+                    onToggle={() => handleOptionToggle(option.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 선택 요약 */}
+          {selectedOptionIds.length > 0 && selectedMenu && (
+            <div className="summary-card">
+              <div className="summary-row">
+                <span className="summary-label">기본 시술</span>
+                <span className="summary-value">{formatPrice(menuItem.basePrice)}</span>
+              </div>
+              {menuItem.options?.filter(opt => selectedOptionIds.includes(opt.id)).map(opt => (
+                <div key={opt.id} className="summary-row">
+                  <span className="summary-label">+ {opt.name}</span>
+                  <span className="summary-value">{formatPrice(opt.price)}</span>
+                </div>
+              ))}
+              <div className="summary-row summary-total">
+                <span className="summary-label">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M8 4.5V8L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  총 {formatDuration(selectedMenu.totalDurationMinutes)}
+                </span>
+                <span className="summary-value">{formatPrice(selectedMenu.totalPrice)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 예약 섹션 */}
+        <div className="booking-card">
+          <div className="section-header">
+            <span className="section-icon booking-icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M2 7H16" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M6 1V4M12 1V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </span>
+            <h3 className="section-title">예약하기</h3>
+          </div>
+
+          {/* 예약 진행 상태 */}
+          <div className="booking-progress">
+            <div className={`progress-step ${bookingProgress.hasDate ? 'completed' : 'active'}`}>
+              <span className="step-number">1</span>
+              <span className="step-label">날짜 선택</span>
+            </div>
+            <div className="progress-line" />
+            <div className={`progress-step ${bookingProgress.hasTime ? 'completed' : bookingProgress.hasDate ? 'active' : ''}`}>
+              <span className="step-number">2</span>
+              <span className="step-label">시간 선택</span>
+            </div>
+            <div className="progress-line" />
+            <div className={`progress-step ${bookingProgress.isComplete ? 'active' : ''}`}>
+              <span className="step-number">3</span>
+              <span className="step-label">예약 완료</span>
+            </div>
+          </div>
+
+          {/* 날짜 선택 */}
+          <div className="booking-step-section">
+            <div className="step-header">
+              <span className="step-badge">STEP 1</span>
+              <span className="step-title">날짜를 선택해주세요</span>
+            </div>
+            <Calendar selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+          </div>
+
+          {/* 시간 선택 */}
+          {selectedDate && (
+            <div className="booking-step-section">
+              <div className="step-header">
+                <span className="step-badge">STEP 2</span>
+                <span className="step-title">시간을 선택해주세요</span>
+              </div>
+              <TimeSlots
+                slots={slotsResponse?.slots || []}
+                selectedTime={selectedTime}
+                onSelectTime={setSelectedTime}
+                isLoading={isSlotsLoading}
               />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 선택 요약 */}
-      {selectedMenu && (
-        <div className="selection-summary">
-          <div className="summary-item">
-            <span className="summary-label">총 소요시간</span>
-            <span className="summary-value">{formatDuration(selectedMenu.totalDurationMinutes)}</span>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">총 금액</span>
-            <span className="summary-value highlight">{formatPrice(selectedMenu.totalPrice)}</span>
-          </div>
+            </div>
+          )}
         </div>
-      )}
-
-      <div className="reservation-section">
-        <div className="reservation-calendar">
-          <h2 className="section-title">날짜 선택</h2>
-          <Calendar selectedDate={selectedDate} onSelectDate={setSelectedDate} />
-        </div>
-
-        {selectedDate && selectedMenu && (
-          <div className="reservation-slots">
-            <TimeSlots
-              slots={slots || []}
-              selectedTime={selectedTime}
-              onSelectTime={setSelectedTime}
-              isLoading={isSlotsLoading}
-              durationInfo={`${formatDuration(selectedMenu.totalDurationMinutes)} 소요`}
-            />
-          </div>
-        )}
       </div>
 
       {/* 예약 확인 바 */}
       {selectedDate && selectedTime && selectedMenu && endTime && (
-        <div className="reservation-summary">
-          <div className="summary-content">
-            <p className="summary-date">{selectedDate}</p>
-            <p className="summary-time-range">
-              예약 시간: <strong>{formatTimeRange(selectedTime, endTime)}</strong>
-            </p>
-            <p className="summary-price">{formatPrice(selectedMenu.totalPrice)}</p>
+        <div className="booking-bar">
+          <div className="booking-bar-content">
+            <div className="booking-bar-info">
+              <span className="booking-bar-date">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <rect x="1.5" y="2" width="11" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
+                  <path d="M1.5 5.5H12.5" stroke="currentColor" strokeWidth="1.2"/>
+                  <path d="M4.5 0.5V3M9.5 0.5V3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+                {formatDateKorean(selectedDate)}
+              </span>
+              <span className="booking-bar-time">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/>
+                  <path d="M7 4V7L9 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+                {formatTimeRange(selectedTime, endTime)}
+              </span>
+            </div>
+            <span className="booking-bar-price">{formatPrice(selectedMenu.totalPrice)}</span>
           </div>
           <button
             type="button"
-            className="reservation-button"
+            className="booking-bar-button"
             onClick={handleReservation}
             disabled={reservationMutation.isPending}
           >
@@ -220,20 +341,35 @@ export function StyleDetailPage() {
                 예약 중...
               </>
             ) : (
-              '예약하기'
+              <>
+                예약하기
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </>
             )}
           </button>
         </div>
       )}
 
+      {/* 토스트 메시지 */}
       {reservationMutation.isError && (
-        <div className="error-toast">
-          <p>방금 다른 사용자가 예약했어요. 다른 시간을 선택해주세요.</p>
+        <div className="toast-message toast-error">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7.5" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M9 5.5V9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="9" cy="12.5" r="0.75" fill="currentColor"/>
+          </svg>
+          <p>다른 고객이 먼저 예약했어요. 다른 시간을 선택해주세요.</p>
         </div>
       )}
 
       {showSuccessToast && (
-        <div className="success-toast">
+        <div className="toast-message toast-success">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7.5" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M6 9L8 11L12 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <p>예약이 완료되었습니다!</p>
         </div>
       )}
@@ -256,17 +392,33 @@ function OptionCard({ option, isSelected, onToggle }: OptionCardProps) {
       onClick={onToggle}
       aria-pressed={isSelected}
     >
-      <div className="option-checkbox">
-        {isSelected && <span className="checkmark">✓</span>}
+      <div className="option-card-checkbox">
+        {isSelected && (
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
       </div>
-      <div className="option-content">
-        <span className="option-name">{option.name}</span>
-        {option.description && <span className="option-description">{option.description}</span>}
+      <div className="option-card-content">
+        <span className="option-card-name">{option.name}</span>
+        {option.description && (
+          <span className="option-card-desc">{option.description}</span>
+        )}
       </div>
-      <div className="option-meta">
-        <span className="option-price">+{formatPrice(option.price)}</span>
-        <span className="option-duration">+{option.additionalMinutes}분</span>
+      <div className="option-card-meta">
+        <span className="option-card-price">+{formatPrice(option.price)}</span>
+        <span className="option-card-duration">+{option.additionalMinutes}분</span>
       </div>
     </button>
   );
+}
+
+// 날짜 포맷 (예: "1월 20일 (월)")
+function formatDateKorean(dateString: string): string {
+  const date = new Date(dateString);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+  const dayOfWeek = weekDays[date.getDay()];
+  return `${month}월 ${day}일 (${dayOfWeek})`;
 }
