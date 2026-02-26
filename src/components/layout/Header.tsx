@@ -33,9 +33,9 @@ export function Header() {
             <>
               <div className="user-badge">
                 <span className="user-avatar">
-                  {user?.name?.charAt(0) || 'U'}
+                  {user?.username?.charAt(0) || 'U'}
                 </span>
-                <span className="user-name">{user?.name}님</span>
+                <span className="user-name">{user?.username ?? ''}님</span>
               </div>
               <button className="header-btn header-btn-outline" onClick={handleLogout}>
                 로그아웃
