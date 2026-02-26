@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { signup } from '../services/api';
-import { useAuthStore } from '../stores/authStore';
+import { signup, ApiException } from '../services/api';
 import type { SignupFormData } from '../types';
 import './LoginPage.css';
 
@@ -11,17 +10,18 @@ interface FormErrors {
   age?: string;
   email?: string;
   phone?: string;
+  password?: string;
 }
 
 export function SignupPage() {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
 
   const [formData, setFormData] = useState<SignupFormData>({
     name: '',
     age: '',
     email: '',
     phone: '',
+    password: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -29,9 +29,8 @@ export function SignupPage() {
 
   const signupMutation = useMutation({
     mutationFn: () => signup(formData),
-    onSuccess: (user) => {
-      login(user);
-      navigate('/');
+    onSuccess: () => {
+      navigate('/login');
     },
   });
 
@@ -58,6 +57,10 @@ export function SignupPage() {
         if (!phoneRegex.test(value.replace(/-/g, ''))) {
           return '휴대폰 번호 형식이 올바르지 않습니다.';
         }
+        return undefined;
+      case 'password':
+        if (!value) return '비밀번호를 입력해주세요.';
+        if (value.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
         return undefined;
       default:
         return undefined;
@@ -98,10 +101,11 @@ export function SignupPage() {
       age: validateField('age', formData.age),
       email: validateField('email', formData.email),
       phone: validateField('phone', formData.phone),
+      password: validateField('password', formData.password),
     };
 
     setErrors(newErrors);
-    setTouched({ name: true, age: true, email: true, phone: true });
+    setTouched({ name: true, age: true, email: true, phone: true, password: true });
 
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
@@ -265,6 +269,34 @@ export function SignupPage() {
               </div>
 
               <div className="form-field">
+                <label htmlFor="password" className="form-label">
+                  비밀번호 <span className="required">*</span>
+                </label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M6 8V5C6 3.34315 7.34315 2 9 2C10.6569 2 12 3.34315 12 5V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className={`form-input ${errors.password && touched.password ? 'error' : ''}`}
+                    placeholder="8자 이상 입력하세요"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.password && touched.password && (
+                  <p className="form-error">{errors.password}</p>
+                )}
+              </div>
+
+              <div className="form-field">
                 <label htmlFor="phone" className="form-label">
                   휴대폰 번호 <span className="required">*</span>
                 </label>
@@ -299,7 +331,11 @@ export function SignupPage() {
                     <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
                   </svg>
-                  <span>회원가입 중 오류가 발생했습니다. 다시 시도해주세요.</span>
+                  <span>
+                    {signupMutation.error instanceof ApiException
+                      ? signupMutation.error.errorMessage
+                      : '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.'}
+                  </span>
                 </div>
               )}
 
