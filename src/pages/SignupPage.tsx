@@ -83,10 +83,8 @@ export function SignupPage() {
     }
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
-
-    if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validateField(name, newValue) }));
-    }
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, newValue) }));
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -109,6 +107,13 @@ export function SignupPage() {
 
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
+
+  const isFormValid =
+    !validateField('name', formData.name) &&
+    !validateField('age', formData.age) &&
+    !validateField('email', formData.email) &&
+    !validateField('phone', formData.phone) &&
+    !validateField('password', formData.password);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,7 +347,7 @@ export function SignupPage() {
               <button
                 type="submit"
                 className="submit-button"
-                disabled={signupMutation.isPending}
+                disabled={!isFormValid || signupMutation.isPending}
               >
                 {signupMutation.isPending ? (
                   <>

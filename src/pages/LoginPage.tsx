@@ -48,6 +48,7 @@ export function LoginPage() {
         return undefined;
       case 'password':
         if (!value) return '비밀번호를 입력해주세요.';
+        if (value.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
         return undefined;
       default:
         return undefined;
@@ -57,10 +58,8 @@ export function LoginPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
-    }
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -80,6 +79,10 @@ export function LoginPage() {
 
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
+
+  const isFormValid =
+    !validateField('email', formData.email) &&
+    !validateField('password', formData.password);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,7 +227,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 className="submit-button"
-                disabled={loginMutation.isPending}
+                disabled={!isFormValid || loginMutation.isPending}
               >
                 {loginMutation.isPending ? (
                   <>
