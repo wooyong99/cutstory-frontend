@@ -5,12 +5,14 @@ import { useAuthStore } from '../stores/authStore';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export class ApiException extends Error {
-  constructor(
-    public errorCode: string,
-    public errorMessage: string,
-  ) {
+  errorCode: string;
+  errorMessage: string;
+
+  constructor(errorCode: string, errorMessage: string) {
     super(errorMessage);
     this.name = 'ApiException';
+    this.errorCode = errorCode;
+    this.errorMessage = errorMessage;
   }
 }
 
