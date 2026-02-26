@@ -1,3 +1,6 @@
+// 사용자 역할
+export type UserRole = 'USER' | 'ADMIN';
+
 // 사용자 관련 타입 (GET /api/v1/users/me 응답)
 export interface User {
   id: number;
@@ -5,7 +8,24 @@ export interface User {
   username: string;
   age: number;
   phone: string;
-  role: string;
+  role: UserRole;
+}
+
+// 관리자 회원 목록 조회 응답
+export interface UserListItem {
+  id: number;
+  email: string;
+  username: string;
+  age: number;
+  phone: string;
+  role: UserRole;
+  registeredAt: string;
+}
+
+// 카테고리 응답
+export interface CategoryResponse {
+  id: number;
+  name: string;
 }
 
 export interface SignupFormData {
@@ -107,6 +127,32 @@ export interface ApiResponse<T> {
 export interface ApiError {
   errorCode: string;
   errorMessage: string;
+}
+
+// 카테고리 생성 요청
+export interface CreateCategoryRequest {
+  name: string;
+}
+
+// 메뉴 옵션 생성 요청
+export interface CreateMenuOptionRequest {
+  name: string;
+  duration: number;
+  price: number;
+  description: string;
+}
+
+// 메뉴 생성 요청
+export interface CreateMenuRequest {
+  name: string;
+  description: string;
+  minDuration: number;
+  maxDuration: number;
+  price: number;
+  mainImage: string;
+  detailImages: string[];
+  options: CreateMenuOptionRequest[];
+  categoryIds: number[];
 }
 
 // 시간 슬롯 상수

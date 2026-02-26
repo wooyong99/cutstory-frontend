@@ -1,4 +1,4 @@
-import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, SignUpRequest, LoginResponse, Reservation, MenuCategory, ApiResponse, ApiError } from '../types';
+import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, SignUpRequest, LoginResponse, Reservation, MenuCategory, ApiResponse, ApiError, UserListItem, CategoryResponse, CreateCategoryRequest, CreateMenuRequest } from '../types';
 import { calculateEndTime, generateAllSlotTimes } from '../utils/timeSlot';
 import { useAuthStore } from '../stores/authStore';
 
@@ -27,6 +27,7 @@ async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T>
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    credentials: 'include',
     headers,
     ...options,
   });
@@ -276,6 +277,43 @@ export async function createReservation(params: CreateReservationParams): Promis
   }
 
   return reservation;
+}
+
+// 관리자 API
+export async function adminSignup(data: { email: string; password: string; username: string }): Promise<User> {
+  return apiClient<User>('/api/v1/admin/auth/sign-up', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function adminLogin(email: string, password: string): Promise<LoginResponse> {
+  return apiClient<LoginResponse>('/api/v1/admin/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function fetchUsers(): Promise<UserListItem[]> {
+  return apiClient<UserListItem[]>('/api/v1/admin/users');
+}
+
+export async function fetchCategories(): Promise<CategoryResponse[]> {
+  return apiClient<CategoryResponse[]>('/api/v1/categories');
+}
+
+export async function createCategory(data: CreateCategoryRequest): Promise<CategoryResponse> {
+  return apiClient<CategoryResponse>('/api/v1/admin/categories', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function createMenu(data: CreateMenuRequest): Promise<void> {
+  return apiClient<void>('/api/v1/menus', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
 // 유틸리티

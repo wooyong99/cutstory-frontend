@@ -1,0 +1,225 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { adminSignup, ApiException } from '../../services/api';
+import '../LoginPage.css';
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+}
+
+export function AdminSignupPage() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const signupMutation = useMutation({
+    mutationFn: () => adminSignup(formData),
+    onSuccess: () => {
+      navigate('/admin/login', { replace: true });
+    },
+  });
+
+  const validateField = (name: string, value: string): string | undefined => {
+    switch (name) {
+      case 'username':
+        if (!value.trim()) return '이름을 입력해주세요.';
+        return undefined;
+      case 'email':
+        if (!value.trim()) return '이메일을 입력해주세요.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return '이메일 형식이 올바르지 않습니다.';
+        return undefined;
+      case 'password':
+        if (!value) return '비밀번호를 입력해주세요.';
+        if (value.length < 8) return '비밀번호는 8자 이상이어야 합니다.';
+        return undefined;
+      default:
+        return undefined;
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {
+      username: validateField('username', formData.username),
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password),
+    };
+    setErrors(newErrors);
+    setTouched({ username: true, email: true, password: true });
+    return !Object.values(newErrors).some((error) => error !== undefined);
+  };
+
+  const isFormValid =
+    !validateField('username', formData.username) &&
+    !validateField('email', formData.email) &&
+    !validateField('password', formData.password);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    signupMutation.mutate();
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-visual">
+          <div className="auth-visual-content">
+            <div className="visual-badge">Admin Portal</div>
+            <h2 className="visual-title">
+              관리자
+              <br />회원가입
+            </h2>
+            <p className="visual-description">
+              CutStory 관리자 계정을 생성합니다.
+            </p>
+          </div>
+        </div>
+
+        <div className="auth-form-wrapper">
+          <div className="auth-form-container">
+            <div className="auth-header">
+              <span className="auth-logo">
+                <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M9 14C9 11.2386 11.2386 9 14 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="14" cy="14" r="3" fill="currentColor"/>
+                </svg>
+                <span>CutStory Admin</span>
+              </span>
+              <h1 className="auth-title">관리자 회원가입</h1>
+              <p className="auth-subtitle">관리자 계정을 생성하세요</p>
+            </div>
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="form-field">
+                <label htmlFor="username" className="form-label">이름</label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M2.5 16C2.5 13.5147 4.51472 11.5 7 11.5H11C13.4853 11.5 15.5 13.5147 15.5 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    className={`form-input ${errors.username && touched.username ? 'error' : ''}`}
+                    placeholder="관리자 이름"
+                    value={formData.username}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.username && touched.username && <p className="form-error">{errors.username}</p>}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="email" className="form-label">이메일</label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M3 6L9 10.5L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className={`form-input ${errors.email && touched.email ? 'error' : ''}`}
+                    placeholder="admin@email.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.email && touched.email && <p className="form-error">{errors.email}</p>}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="password" className="form-label">비밀번호</label>
+                <div className="input-wrapper">
+                  <span className="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="3" y="7" width="12" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M6 7V5C6 3.34315 7.34315 2 9 2C10.6569 2 12 3.34315 12 5V7" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                  </span>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className={`form-input ${errors.password && touched.password ? 'error' : ''}`}
+                    placeholder="8자 이상 입력하세요"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={signupMutation.isPending}
+                  />
+                </div>
+                {errors.password && touched.password && <p className="form-error">{errors.password}</p>}
+              </div>
+
+              {signupMutation.isError && (
+                <div className="form-error-box">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
+                  </svg>
+                  <span>
+                    {signupMutation.error instanceof ApiException
+                      ? signupMutation.error.errorMessage
+                      : '회원가입에 실패했습니다. 다시 시도해주세요.'}
+                  </span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={!isFormValid || signupMutation.isPending}
+              >
+                {signupMutation.isPending ? (
+                  <>
+                    <span className="button-spinner" />
+                    가입 중...
+                  </>
+                ) : (
+                  '관리자 회원가입'
+                )}
+              </button>
+            </form>
+
+            <div className="auth-footer">
+              <p>
+                이미 계정이 있으신가요? <Link to="/admin/login" className="auth-link">관리자 로그인</Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

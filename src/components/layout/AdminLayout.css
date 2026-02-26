@@ -1,0 +1,87 @@
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 56px;
+  background-color: #1e1b4b;
+  color: white;
+}
+
+.admin-header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+}
+
+.admin-logout-button {
+  padding: 0.375rem 0.875rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+}
+
+.admin-sidebar {
+  width: 200px;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  flex-shrink: 0;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1.25rem;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.admin-nav-link:hover {
+  color: #111827;
+  background-color: #f3f4f6;
+}
+
+.admin-nav-link.active {
+  color: #6366f1;
+  background-color: #eef2ff;
+  font-weight: 600;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+}
