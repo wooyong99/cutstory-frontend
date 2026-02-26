@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchMenuItems } from '../services/api';
 import { Loading, ErrorMessage, EmptyState } from '../components/common';
+import { useAuthStore } from '../stores/authStore';
 import { formatDuration, formatPrice } from '../utils/timeSlot';
 import { CATEGORY_LABELS, type MenuItem, type MenuCategory } from '../types';
 import './MainPage.css';
@@ -20,6 +21,7 @@ const CATEGORY_IMAGES: Record<MenuCategory, string> = {
 };
 
 export function MainPage() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [activeCategory, setActiveCategory] = useState<MenuCategory | 'all'>('all');
 
   const {
@@ -146,21 +148,23 @@ export function MainPage() {
         </div>
       </section>
 
-      {/* CTA 섹션 */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2 className="cta-title">첫 방문 고객 할인</h2>
-          <p className="cta-description">
-            회원가입 후 첫 예약 시 10% 할인 혜택을 드립니다
-          </p>
-          <Link to="/signup" className="cta-button">
-            지금 시작하기
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </div>
-      </section>
+      {/* CTA 섹션 - 비로그인 사용자만 */}
+      {!isAuthenticated && (
+        <section className="cta-section">
+          <div className="cta-content">
+            <h2 className="cta-title">첫 방문 고객 할인</h2>
+            <p className="cta-description">
+              회원가입 후 첫 예약 시 10% 할인 혜택을 드립니다
+            </p>
+            <Link to="/signup" className="cta-button">
+              지금 시작하기
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
