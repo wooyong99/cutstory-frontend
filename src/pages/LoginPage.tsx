@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { login as loginApi } from '../services/api';
+import { login as loginApi, fetchMe, ApiException } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import './LoginPage.css';
 
@@ -13,7 +13,7 @@ interface FormErrors {
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const loginStore = useAuthStore((state) => state.login);
+  const { login: loginStore, setUser } = useAuthStore();
 
   const from = (location.state as { from?: string })?.from || '/';
 
@@ -27,8 +27,14 @@ export function LoginPage() {
 
   const loginMutation = useMutation({
     mutationFn: () => loginApi(formData.email, formData.password),
-    onSuccess: (user) => {
-      loginStore(user);
+    onSuccess: async ({ accessToken }) => {
+      loginStore(accessToken);
+      try {
+        const user = await fetchMe();
+        setUser(user);
+      } catch {
+        // 사용자 정보 조회 실패해도 로그인은 유지
+      }
       navigate(from, { replace: true });
     },
   });
@@ -207,7 +213,11 @@ export function LoginPage() {
                     <path d="M8 5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <circle cx="8" cy="11" r="0.75" fill="currentColor"/>
                   </svg>
-                  <span>이메일 또는 비밀번호가 올바르지 않습니다.</span>
+                  <span>
+                    {loginMutation.error instanceof ApiException
+                      ? loginMutation.error.errorMessage
+                      : '이메일 또는 비밀번호가 올바르지 않습니다.'}
+                  </span>
                 </div>
               )}
 
