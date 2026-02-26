@@ -1,10 +1,11 @@
-// 사용자 관련 타입
+// 사용자 관련 타입 (GET /api/v1/users/me 응답)
 export interface User {
-  id: string;
-  name: string;
-  age: number;
+  id: number;
   email: string;
+  username: string;
+  age: number;
   phone: string;
+  role: string;
 }
 
 export interface SignupFormData {
@@ -12,11 +13,24 @@ export interface SignupFormData {
   age: string;
   email: string;
   phone: string;
+  password: string;
+}
+
+export interface SignUpRequest {
+  username: string;
+  age: number;
+  email: string;
+  phone: string;
+  password: string;
 }
 
 export interface LoginFormData {
   email: string;
   password: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
 }
 
 // 메뉴 카테고리
@@ -83,15 +97,16 @@ export interface Reservation {
   createdAt: string;
 }
 
-// API 응답 타입
+// API 공통 응답 타입
 export interface ApiResponse<T> {
-  data: T;
-  message?: string;
+  isSuccess: boolean;
+  data?: T;
+  error?: ApiError;
 }
 
 export interface ApiError {
-  message: string;
-  code?: string;
+  errorCode: string;
+  errorMessage: string;
 }
 
 // 시간 슬롯 상수

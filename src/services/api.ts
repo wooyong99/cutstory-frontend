@@ -1,8 +1,46 @@
-import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, Reservation, MenuCategory } from '../types';
+import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, SignUpRequest, LoginResponse, Reservation, MenuCategory, ApiResponse, ApiError } from '../types';
 import { calculateEndTime, generateAllSlotTimes } from '../utils/timeSlot';
+import { useAuthStore } from '../stores/authStore';
 
-// API_BASE_URL은 실제 API 연동 시 사용
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export class ApiException extends Error {
+  constructor(
+    public errorCode: string,
+    public errorMessage: string,
+  ) {
+    super(errorMessage);
+    this.name = 'ApiException';
+  }
+}
+
+async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const token = useAuthStore.getState().accessToken;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers,
+    ...options,
+  });
+
+  const body: ApiResponse<T> = await response.json();
+
+  if (!body.isSuccess || body.error) {
+    const error = body.error as ApiError;
+    throw new ApiException(
+      error?.errorCode ?? 'UNKNOWN_ERROR',
+      error?.errorMessage ?? '알 수 없는 오류가 발생했습니다.',
+    );
+  }
+
+  return body.data as T;
+}
 
 // Mock 메뉴 데이터 (RESERVATION_TIME_POLICY.md 기반)
 const mockMenuItems: MenuItem[] = [
@@ -161,33 +199,29 @@ export async function fetchDateSlots(date: string): Promise<DateSlotsResponse> {
 }
 
 export async function signup(data: SignupFormData): Promise<User> {
-  await delay(800);
-
-  const user: User = {
-    id: Math.random().toString(36).substring(7),
-    name: data.name,
+  const request: SignUpRequest = {
+    username: data.name,
     age: parseInt(data.age, 10),
     email: data.email,
-    phone: data.phone,
+    phone: data.phone.replace(/-/g, ''),
+    password: data.password,
   };
 
-  return user;
+  return apiClient<User>('/api/v1/auth/sign-up', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
 }
 
-export async function login(email: string, password: string): Promise<User> {
-  await delay(600);
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  return apiClient<LoginResponse>('/api/v1/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
 
-  if (email && password) {
-    return {
-      id: '1',
-      name: '테스트 사용자',
-      age: 25,
-      email,
-      phone: '010-1234-5678',
-    };
-  }
-
-  throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
+export async function fetchMe(): Promise<User> {
+  return apiClient<User>('/api/v1/users/me');
 }
 
 export interface CreateReservationParams {
