@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createMenu, fetchCategories } from '../../services/api';
 import type { CreateMenuOptionRequest } from '../../types';
 import './AdminPage.css';
@@ -16,6 +16,7 @@ const emptyOption: OptionForm = { name: '', duration: '', price: '', description
 
 export function MenuCreatePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -35,6 +36,7 @@ export function MenuCreatePage() {
   const mutation = useMutation({
     mutationFn: createMenu,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'menus'] });
       navigate('/admin/menus');
     },
   });
