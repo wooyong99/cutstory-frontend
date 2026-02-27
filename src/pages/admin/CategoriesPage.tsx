@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchCategories, createCategory } from '../../services/api';
+import { fetchCategories, createCategory, deleteCategory } from '../../services/api';
 import { Modal } from '../../components/common';
 import './AdminPage.css';
 
@@ -29,8 +29,17 @@ export function CategoriesPage() {
     createMutation.mutate({ name: trimmed });
   };
 
-  const handleDelete = (_id: number) => {
-    alert('카테고리 삭제 API가 아직 구현되지 않았습니다.');
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    deleteMutation.mutate(id);
   };
 
   return (

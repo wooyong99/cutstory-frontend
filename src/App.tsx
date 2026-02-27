@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout, AdminLayout } from './components/layout';
-import { SignupPage, LoginPage, MainPage, StyleDetailPage, AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage } from './pages';
+import { SignupPage, LoginPage, MainPage, StyleDetailPage, MyPage, AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage } from './pages';
 import { useInitAuth } from './hooks/useInitAuth';
 import { useAuthStore } from './stores/authStore';
 
@@ -18,6 +18,12 @@ const queryClient = new QueryClient({
 function GuestOnly({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (isAuthenticated) return <Navigate to="/" replace />;
+  return children;
+}
+
+function AuthOnly({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -50,6 +56,7 @@ function AppRoutes() {
         <Route path="/signup" element={<GuestOnly><SignupPage /></GuestOnly>} />
         <Route path="/login" element={<GuestOnly><LoginPage /></GuestOnly>} />
         <Route path="/styles/:styleId" element={<StyleDetailPage />} />
+        <Route path="/mypage" element={<AuthOnly><MyPage /></AuthOnly>} />
       </Route>
 
       {/* 관리자 인증 라우트 */}

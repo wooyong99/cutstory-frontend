@@ -129,8 +129,24 @@ export interface ApiError {
   errorMessage: string;
 }
 
+// 카테고리별 메뉴 목록 응답
+export interface MenuListResponse {
+  id: number;
+  name: string;
+  description: string;
+  minDuration: number;
+  maxDuration: number;
+  price: number;
+  mainImage: string;
+}
+
 // 카테고리 생성 요청
 export interface CreateCategoryRequest {
+  name: string;
+}
+
+// 카테고리 수정 요청
+export interface UpdateCategoryRequest {
   name: string;
 }
 

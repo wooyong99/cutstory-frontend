@@ -31,12 +31,12 @@ export function Header() {
         <nav className="header-nav">
           {isAuthenticated ? (
             <>
-              <div className="user-badge">
+              <Link to="/mypage" className="user-badge">
                 <span className="user-avatar">
                   {user?.username?.charAt(0) || 'U'}
                 </span>
                 <span className="user-name">{user?.username ?? ''}님</span>
-              </div>
+              </Link>
               <button className="header-btn header-btn-outline" onClick={handleLogout}>
                 로그아웃
               </button>
