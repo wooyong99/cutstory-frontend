@@ -28,7 +28,7 @@ export function Header() {
           <span className="logo-text">CutStory</span>
         </Link>
 
-        <nav className="header-nav">
+        <nav className="header-nav" aria-label="사용자 메뉴">
           {isAuthenticated ? (
             <>
               <Link to="/mypage" className="user-badge">
