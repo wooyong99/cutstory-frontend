@@ -195,7 +195,7 @@ export async function createCategory(data: CreateCategoryRequest): Promise<Categ
 }
 
 export async function updateCategory(id: number, data: UpdateCategoryRequest): Promise<CategoryResponse> {
-  return adminApiClient<CategoryResponse>(`/api/v1/admin/categories/${id}`, {
+  return apiClient<CategoryResponse>(`/api/v1/categories/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });

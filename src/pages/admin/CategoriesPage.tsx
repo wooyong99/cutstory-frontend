@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchCategories, createCategory, deleteCategory } from '../../services/api';
+import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../../services/api';
 import { Modal } from '../../components/common';
 import './AdminPage.css';
 
@@ -8,6 +8,8 @@ export function CategoriesPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryName, setCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<{ id: number; name: string } | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState('');
 
   const { data: categories, isLoading, isError } = useQuery({
     queryKey: ['admin', 'categories'],
@@ -27,6 +29,28 @@ export function CategoriesPage() {
     const trimmed = categoryName.trim();
     if (!trimmed) return;
     createMutation.mutate({ name: trimmed });
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, name }: { id: number; name: string }) => updateCategory(id, { name }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setEditingCategory(null);
+      setEditCategoryName('');
+    },
+  });
+
+  const handleEdit = (category: { id: number; name: string }) => {
+    setEditingCategory(category);
+    setEditCategoryName(category.name);
+    updateMutation.reset();
+  };
+
+  const handleUpdate = () => {
+    const trimmed = editCategoryName.trim();
+    if (!trimmed || !editingCategory) return;
+    updateMutation.mutate({ id: editingCategory.id, name: trimmed });
   };
 
   const deleteMutation = useMutation({
@@ -78,9 +102,14 @@ export function CategoriesPage() {
                   <td>{category.id}</td>
                   <td>{category.name}</td>
                   <td>
-                    <button className="delete-button" onClick={() => handleDelete(category.id)}>
-                      삭제
-                    </button>
+                    <div className="admin-action-buttons">
+                      <button className="admin-create-button" onClick={() => handleEdit(category)}>
+                        수정
+                      </button>
+                      <button className="delete-button" onClick={() => handleDelete(category.id)}>
+                        삭제
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -118,6 +147,43 @@ export function CategoriesPage() {
             disabled={!categoryName.trim() || createMutation.isPending}
           >
             {createMutation.isPending ? '생성 중...' : '생성'}
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={editingCategory !== null}
+        onClose={() => { setEditingCategory(null); setEditCategoryName(''); }}
+        title="카테고리 수정"
+      >
+        <div className="modal-form">
+          <label className="modal-label" htmlFor="edit-category-name">
+            카테고리 이름
+          </label>
+          <input
+            id="edit-category-name"
+            className="modal-input"
+            type="text"
+            value={editCategoryName}
+            onChange={(e) => setEditCategoryName(e.target.value)}
+            placeholder="카테고리 이름을 입력하세요"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleUpdate();
+            }}
+          />
+          {updateMutation.isError && (
+            <p className="modal-error">
+              {updateMutation.error instanceof Error
+                ? updateMutation.error.message
+                : '카테고리 수정에 실패했습니다.'}
+            </p>
+          )}
+          <button
+            className="admin-create-button modal-submit-button"
+            onClick={handleUpdate}
+            disabled={!editCategoryName.trim() || editCategoryName.trim() === editingCategory?.name || updateMutation.isPending}
+          >
+            {updateMutation.isPending ? '수정 중...' : '수정'}
           </button>
         </div>
       </Modal>
