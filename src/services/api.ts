@@ -1,4 +1,4 @@
-import type { User, SignupFormData, SignUpRequest, LoginResponse, ApiResponse, ApiError, UserListItem, CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest, CreateMenuRequest, MenuListResponse, MenuDetailResponse, TimeSlotResponse, ReservationResponse, CreateReservationRequest, AdminReservationResponse } from '../types';
+import type { User, SignupFormData, SignUpRequest, LoginResponse, ApiResponse, ApiError, UserListItem, CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest, CreateMenuRequest, MenuListResponse, MenuDetailResponse, TimeSlotResponse, ReservationResponse, CreateReservationRequest, AdminReservationResponse, TermsResponse } from '../types';
 import { useAuthStore } from '../stores/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -137,6 +137,12 @@ export async function adminCompleteReservation(id: number): Promise<void> {
   });
 }
 
+// ── 약관 API ──
+
+export async function fetchTerms(): Promise<TermsResponse[]> {
+  return apiClient<TermsResponse[]>('/api/v1/terms');
+}
+
 // ── 인증 API ──
 
 export async function signup(data: SignupFormData): Promise<User> {
@@ -146,8 +152,7 @@ export async function signup(data: SignupFormData): Promise<User> {
     email: data.email,
     phone: data.phone.replace(/-/g, ''),
     password: data.password,
-    privacyConsent: data.privacyConsent,
-    marketingConsent: data.marketingConsent,
+    agreedTermsIds: data.agreedTermsIds,
   };
 
   return apiClient<User>('/api/v1/auth/sign-up', {

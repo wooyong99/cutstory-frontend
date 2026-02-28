@@ -28,14 +28,22 @@ export interface CategoryResponse {
   name: string;
 }
 
+// 약관 응답
+export interface TermsResponse {
+  id: number;
+  title: string;
+  content: string;
+  required: boolean;
+  displayOrder: number;
+}
+
 export interface SignupFormData {
   name: string;
   age: string;
   email: string;
   phone: string;
   password: string;
-  privacyConsent: boolean;    // 개인정보 수집·이용 동의 (필수)
-  marketingConsent: boolean;  // 마케팅 수신 동의 (선택)
+  agreedTermsIds: number[];
 }
 
 export interface SignUpRequest {
@@ -44,8 +52,7 @@ export interface SignUpRequest {
   email: string;
   phone: string;
   password: string;
-  privacyConsent: boolean;
-  marketingConsent: boolean;
+  agreedTermsIds: number[];
 }
 
 export interface LoginFormData {
