@@ -34,6 +34,8 @@ export interface SignupFormData {
   email: string;
   phone: string;
   password: string;
+  privacyConsent: boolean;    // 개인정보 수집·이용 동의 (필수)
+  marketingConsent: boolean;  // 마케팅 수신 동의 (선택)
 }
 
 export interface SignUpRequest {
@@ -42,6 +44,8 @@ export interface SignUpRequest {
   email: string;
   phone: string;
   password: string;
+  privacyConsent: boolean;
+  marketingConsent: boolean;
 }
 
 export interface LoginFormData {

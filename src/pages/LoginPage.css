@@ -341,6 +341,102 @@
   color: #4f46e5;
 }
 
+/* 약관 동의 섹션 */
+.auth-form .consent-section {
+  background-color: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.auth-form .consent-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.25rem;
+}
+
+.auth-form .consent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.auth-form .consent-checkbox {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-top: 1px;
+  transition: all 0.2s ease;
+}
+
+.auth-form .consent-checkbox:hover:not(:disabled) {
+  border-color: #6366f1;
+}
+
+.auth-form .consent-checkbox.checked {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: transparent;
+}
+
+.auth-form .consent-checkbox:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-form .consent-text-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.auth-form .consent-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: default;
+}
+
+.auth-form .consent-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.auth-form .consent-badge.required {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.auth-form .consent-badge.optional {
+  background-color: #f0f9ff;
+  color: #2563eb;
+}
+
+.auth-form .consent-description {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0.25rem 0 0;
+  line-height: 1.5;
+}
+
 /* 필수 표시 */
 .required {
   color: #dc2626;

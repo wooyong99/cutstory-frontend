@@ -11,6 +11,7 @@ interface FormErrors {
   email?: string;
   phone?: string;
   password?: string;
+  privacyConsent?: string;
 }
 
 export function SignupPage() {
@@ -22,6 +23,8 @@ export function SignupPage() {
     email: '',
     phone: '',
     password: '',
+    privacyConsent: false,
+    marketingConsent: false,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -100,10 +103,11 @@ export function SignupPage() {
       email: validateField('email', formData.email),
       phone: validateField('phone', formData.phone),
       password: validateField('password', formData.password),
+      privacyConsent: formData.privacyConsent ? undefined : '개인정보 수집·이용에 동의해주세요.',
     };
 
     setErrors(newErrors);
-    setTouched({ name: true, age: true, email: true, phone: true, password: true });
+    setTouched({ name: true, age: true, email: true, phone: true, password: true, privacyConsent: true });
 
     return !Object.values(newErrors).some((error) => error !== undefined);
   };
@@ -113,7 +117,8 @@ export function SignupPage() {
     !validateField('age', formData.age) &&
     !validateField('email', formData.email) &&
     !validateField('phone', formData.phone) &&
-    !validateField('password', formData.password);
+    !validateField('password', formData.password) &&
+    formData.privacyConsent;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,6 +332,74 @@ export function SignupPage() {
                 {errors.phone && touched.phone && (
                   <p className="form-error">{errors.phone}</p>
                 )}
+              </div>
+
+              {/* 약관 동의 */}
+              <div className="consent-section">
+                <p className="consent-title">약관 동의</p>
+
+                <div className="consent-item">
+                  <button
+                    type="button"
+                    className={`consent-checkbox ${formData.privacyConsent ? 'checked' : ''}`}
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, privacyConsent: !prev.privacyConsent }));
+                      setTouched((prev) => ({ ...prev, privacyConsent: true }));
+                      setErrors((prev) => ({
+                        ...prev,
+                        privacyConsent: !formData.privacyConsent ? undefined : '개인정보 수집·이용에 동의해주세요.',
+                      }));
+                    }}
+                    disabled={signupMutation.isPending}
+                    aria-label="개인정보 수집·이용 동의"
+                  >
+                    {formData.privacyConsent && (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M11.667 3.5L5.25 9.917L2.333 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+                  <div className="consent-text-wrap">
+                    <label className="consent-label">
+                      <span className="consent-badge required">필수</span>
+                      개인정보 수집·이용에 동의합니다
+                    </label>
+                    <p className="consent-description">
+                      수집 항목: 이름, 나이, 이메일, 전화번호 | 수집 목적: 서비스 제공 및 예약 관리 | 보유 기간: 회원 탈퇴 시까지
+                    </p>
+                  </div>
+                </div>
+
+                {errors.privacyConsent && touched.privacyConsent && (
+                  <p className="form-error" style={{ marginLeft: '2rem' }}>{errors.privacyConsent}</p>
+                )}
+
+                <div className="consent-item">
+                  <button
+                    type="button"
+                    className={`consent-checkbox ${formData.marketingConsent ? 'checked' : ''}`}
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, marketingConsent: !prev.marketingConsent }));
+                    }}
+                    disabled={signupMutation.isPending}
+                    aria-label="마케팅 정보 수신 동의"
+                  >
+                    {formData.marketingConsent && (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M11.667 3.5L5.25 9.917L2.333 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+                  <div className="consent-text-wrap">
+                    <label className="consent-label">
+                      <span className="consent-badge optional">선택</span>
+                      마케팅 정보 수신에 동의합니다
+                    </label>
+                    <p className="consent-description">
+                      이메일, 문자를 통한 할인·이벤트 정보 수신
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {signupMutation.isError && (

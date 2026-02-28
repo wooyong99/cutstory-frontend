@@ -146,6 +146,8 @@ export async function signup(data: SignupFormData): Promise<User> {
     email: data.email,
     phone: data.phone.replace(/-/g, ''),
     password: data.password,
+    privacyConsent: data.privacyConsent,
+    marketingConsent: data.marketingConsent,
   };
 
   return apiClient<User>('/api/v1/auth/sign-up', {
