@@ -1,26 +1,21 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchMenuItemById, fetchDateSlots, createReservation } from '../services/api';
+import { fetchMenuDetail, fetchAvailableSlots, createReservation } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { useReservationStore } from '../stores/reservationStore';
 import { Loading, ErrorMessage } from '../components/common';
 import { Calendar, TimeSlots } from '../components/reservation';
 import {
-  calculateSelectedMenu,
-  calculateEndTime,
   formatDuration,
   formatPrice,
   formatTimeRange,
+  apiTimeToDisplay,
+  displayTimeToApi,
+  calculateEndTime,
 } from '../utils/timeSlot';
-import { CATEGORY_LABELS, type MenuOption, type SelectedMenu, type MenuCategory } from '../types';
+import type { MenuOptionDetailResponse, TimeSlot } from '../types';
 import './StyleDetailPage.css';
-
-const CATEGORY_ICONS: Record<MenuCategory, string> = {
-  cut: '✂️',
-  color: '🎨',
-  perm: '💫',
-};
 
 export function StyleDetailPage() {
   const { styleId: menuId } = useParams<{ styleId: string }>();
@@ -31,57 +26,64 @@ export function StyleDetailPage() {
   const { selectedDate, selectedTime, setSelectedDate, setSelectedTime, resetSelection } =
     useReservationStore();
 
-  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
+  const [selectedOptionIds, setSelectedOptionIds] = useState<number[]>([]);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const numericMenuId = menuId ? Number(menuId) : 0;
 
   // 메뉴 정보 조회
   const {
-    data: menuItem,
+    data: menu,
     isLoading: isMenuLoading,
     isError: isMenuError,
     refetch: refetchMenu,
   } = useQuery({
-    queryKey: ['menuItem', menuId],
-    queryFn: () => fetchMenuItemById(menuId!),
-    enabled: !!menuId,
+    queryKey: ['menuDetail', numericMenuId],
+    queryFn: () => fetchMenuDetail(numericMenuId),
+    enabled: numericMenuId > 0,
   });
 
-  // 선택된 메뉴 + 옵션 계산
-  const selectedMenu: SelectedMenu | null = useMemo(() => {
-    if (!menuItem) return null;
-    const selectedOptions = (menuItem.options || []).filter((opt) =>
-      selectedOptionIds.includes(opt.id)
-    );
-    return calculateSelectedMenu(menuItem, selectedOptions);
-  }, [menuItem, selectedOptionIds]);
+  // 선택된 옵션 기반 총 가격/시간 계산
+  const selectedSummary = useMemo(() => {
+    if (!menu) return null;
+    const selectedOptions = menu.options.filter((opt) => selectedOptionIds.includes(opt.id));
+    const totalPrice = menu.price + selectedOptions.reduce((sum, opt) => sum + opt.price, 0);
+    const totalDuration = menu.minDuration + selectedOptions.reduce((sum, opt) => sum + opt.duration, 0);
+    return { totalPrice, totalDuration, selectedOptions };
+  }, [menu, selectedOptionIds]);
 
-  // 시간 슬롯 조회 (날짜 선택 시)
+  // 시간 슬롯 조회 (날짜 + 메뉴 + 옵션 선택 시)
   const {
-    data: slotsResponse,
+    data: timeSlots,
     isLoading: isSlotsLoading,
+    isError: isSlotsError,
     refetch: refetchSlots,
   } = useQuery({
-    queryKey: ['dateSlots', selectedDate],
-    queryFn: () => fetchDateSlots(selectedDate!),
-    enabled: !!selectedDate,
+    queryKey: ['availableSlots', selectedDate, numericMenuId, selectedOptionIds],
+    queryFn: () => fetchAvailableSlots(selectedDate!, numericMenuId, selectedOptionIds),
+    enabled: !!selectedDate && numericMenuId > 0,
+    select: (data): TimeSlot[] =>
+      (data ?? []).map((slot) => ({
+        time: apiTimeToDisplay(slot.time),
+        disabled: slot.disabled,
+      })),
   });
 
   // 예약 생성
   const reservationMutation = useMutation({
     mutationFn: () =>
       createReservation({
-        menuId: menuId!,
-        optionIds: selectedOptionIds.length > 0 ? selectedOptionIds : undefined,
-        date: selectedDate!,
-        startTime: selectedTime!,
-        durationMinutes: selectedMenu!.totalDurationMinutes,
+        reservationDate: selectedDate!,
+        startTime: displayTimeToApi(selectedTime!),
+        menuId: numericMenuId,
+        optionIds: selectedOptionIds,
       }),
     onSuccess: () => {
       setShowSuccessToast(true);
       resetSelection();
       setSelectedOptionIds([]);
       queryClient.invalidateQueries({
-        queryKey: ['dateSlots', selectedDate],
+        queryKey: ['availableSlots'],
       });
       setTimeout(() => setShowSuccessToast(false), 3000);
     },
@@ -101,7 +103,7 @@ export function StyleDetailPage() {
   }, [selectedDate]);
 
   // 옵션 변경 시 선택된 시간 초기화
-  const handleOptionToggle = (optionId: string) => {
+  const handleOptionToggle = (optionId: number) => {
     setSelectedOptionIds((prev) =>
       prev.includes(optionId) ? prev.filter((id) => id !== optionId) : [...prev, optionId]
     );
@@ -114,7 +116,7 @@ export function StyleDetailPage() {
       return;
     }
 
-    if (!selectedDate || !selectedTime || !selectedMenu) return;
+    if (!selectedDate || !selectedTime || !selectedSummary) return;
 
     reservationMutation.mutate();
   };
@@ -123,7 +125,7 @@ export function StyleDetailPage() {
     return <Loading message="메뉴 정보를 불러오는 중..." />;
   }
 
-  if (isMenuError || !menuItem) {
+  if (isMenuError || !menu) {
     return (
       <ErrorMessage
         message="메뉴 정보를 불러오는데 실패했습니다."
@@ -133,12 +135,11 @@ export function StyleDetailPage() {
   }
 
   const endTime =
-    selectedTime && selectedMenu
-      ? calculateEndTime(selectedTime, selectedMenu.totalDurationMinutes)
+    selectedTime && selectedSummary
+      ? calculateEndTime(selectedTime, selectedSummary.totalDuration)
       : null;
 
-  // 임시 이미지 URL (실제로는 menuItem.imageUrl 사용)
-  const imageUrl = menuItem.imageUrl || `https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop`;
+  const imageUrl = menu.mainImage || `https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=600&fit=crop`;
 
   // 예약 진행 상태 계산
   const bookingProgress = {
@@ -146,6 +147,12 @@ export function StyleDetailPage() {
     hasTime: !!selectedTime,
     isComplete: !!selectedDate && !!selectedTime,
   };
+
+  // 소요시간 표시
+  const durationDisplay =
+    menu.minDuration === menu.maxDuration
+      ? formatDuration(menu.minDuration)
+      : `${formatDuration(menu.minDuration)}~${formatDuration(menu.maxDuration)}`;
 
   return (
     <div className="detail-page">
@@ -158,11 +165,8 @@ export function StyleDetailPage() {
 
       {/* 히어로 이미지 */}
       <div className="detail-hero">
-        <img src={imageUrl} alt={menuItem.name} className="detail-hero-image" />
+        <img src={imageUrl} alt={menu.name} className="detail-hero-image" />
         <div className="detail-hero-overlay" />
-        <span className="detail-category-badge">
-          {CATEGORY_ICONS[menuItem.category]} {CATEGORY_LABELS[menuItem.category]}
-        </span>
       </div>
 
       {/* 메인 콘텐츠 */}
@@ -171,15 +175,14 @@ export function StyleDetailPage() {
         <div className="detail-info-card">
           <div className="info-card-header">
             <div className="info-card-title-group">
-              <h1 className="info-card-title">{menuItem.name}</h1>
-              {menuItem.description && (
-                <p className="info-card-description">{menuItem.description}</p>
+              <h1 className="info-card-title">{menu.name}</h1>
+              {menu.description && (
+                <p className="info-card-description">{menu.description}</p>
               )}
             </div>
             <div className="info-card-price-group">
               <span className="info-card-price">
-                {formatPrice(menuItem.basePrice)}
-                {menuItem.priceNote && <span className="price-suffix">{menuItem.priceNote}</span>}
+                {formatPrice(menu.price)}
               </span>
             </div>
           </div>
@@ -193,12 +196,12 @@ export function StyleDetailPage() {
                 </svg>
               </span>
               <span className="meta-label">소요시간</span>
-              <span className="meta-value">{formatDuration(menuItem.durationMinutes)}</span>
+              <span className="meta-value">{durationDisplay}</span>
             </div>
           </div>
 
           {/* 옵션 선택 */}
-          {menuItem.options && menuItem.options.length > 0 && (
+          {menu.options && menu.options.length > 0 && (
             <div className="options-section">
               <div className="section-header">
                 <span className="section-icon">
@@ -209,7 +212,7 @@ export function StyleDetailPage() {
                 <h3 className="section-title">추가 옵션</h3>
               </div>
               <div className="options-grid">
-                {menuItem.options.map((option) => (
+                {menu.options.map((option) => (
                   <OptionCard
                     key={option.id}
                     option={option}
@@ -222,13 +225,13 @@ export function StyleDetailPage() {
           )}
 
           {/* 선택 요약 */}
-          {selectedOptionIds.length > 0 && selectedMenu && (
+          {selectedOptionIds.length > 0 && selectedSummary && (
             <div className="summary-card">
               <div className="summary-row">
                 <span className="summary-label">기본 시술</span>
-                <span className="summary-value">{formatPrice(menuItem.basePrice)}</span>
+                <span className="summary-value">{formatPrice(menu.price)}</span>
               </div>
-              {menuItem.options?.filter(opt => selectedOptionIds.includes(opt.id)).map(opt => (
+              {selectedSummary.selectedOptions.map(opt => (
                 <div key={opt.id} className="summary-row">
                   <span className="summary-label">+ {opt.name}</span>
                   <span className="summary-value">{formatPrice(opt.price)}</span>
@@ -240,9 +243,9 @@ export function StyleDetailPage() {
                     <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
                     <path d="M8 4.5V8L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
-                  총 {formatDuration(selectedMenu.totalDurationMinutes)}
+                  총 {formatDuration(selectedSummary.totalDuration)}
                 </span>
-                <span className="summary-value">{formatPrice(selectedMenu.totalPrice)}</span>
+                <span className="summary-value">{formatPrice(selectedSummary.totalPrice)}</span>
               </div>
             </div>
           )}
@@ -296,10 +299,12 @@ export function StyleDetailPage() {
                 <span className="step-title">시간을 선택해주세요</span>
               </div>
               <TimeSlots
-                slots={slotsResponse?.slots || []}
+                slots={timeSlots ?? []}
                 selectedTime={selectedTime}
                 onSelectTime={setSelectedTime}
                 isLoading={isSlotsLoading}
+                isError={isSlotsError}
+                onRetry={() => refetchSlots()}
               />
             </div>
           )}
@@ -307,7 +312,7 @@ export function StyleDetailPage() {
       </div>
 
       {/* 예약 확인 바 */}
-      {selectedDate && selectedTime && selectedMenu && endTime && (
+      {selectedDate && selectedTime && selectedSummary && endTime && (
         <div className="booking-bar">
           <div className="booking-bar-content">
             <div className="booking-bar-info">
@@ -327,7 +332,7 @@ export function StyleDetailPage() {
                 {formatTimeRange(selectedTime, endTime)}
               </span>
             </div>
-            <span className="booking-bar-price">{formatPrice(selectedMenu.totalPrice)}</span>
+            <span className="booking-bar-price">{formatPrice(selectedSummary.totalPrice)}</span>
           </div>
           <button
             type="button"
@@ -379,7 +384,7 @@ export function StyleDetailPage() {
 
 // 옵션 카드 컴포넌트
 interface OptionCardProps {
-  option: MenuOption;
+  option: MenuOptionDetailResponse;
   isSelected: boolean;
   onToggle: () => void;
 }
@@ -407,7 +412,7 @@ function OptionCard({ option, isSelected, onToggle }: OptionCardProps) {
       </div>
       <div className="option-card-meta">
         <span className="option-card-price">+{formatPrice(option.price)}</span>
-        <span className="option-card-duration">+{option.additionalMinutes}분</span>
+        <span className="option-card-duration">+{option.duration}분</span>
       </div>
     </button>
   );
