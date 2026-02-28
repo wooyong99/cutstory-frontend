@@ -26,8 +26,8 @@ export function Footer() {
             </div>
             <div className="footer-link-group">
               <h4 className="footer-link-title">고객지원</h4>
-              <a href="tel:02-1234-5678" className="footer-link">전화 문의</a>
-              <a href="mailto:contact@cutstory.kr" className="footer-link">이메일 문의</a>
+              <a href="tel:031-312-7426" className="footer-link">전화 문의</a>
+              <a href="mailto:wulovesk@naver.com" className="footer-link">이메일 문의</a>
             </div>
           </div>
         </div>
@@ -40,17 +40,15 @@ export function Footer() {
           <div className="footer-business-info">
             <p className="business-name">컷스토리 헤어살롱</p>
             <div className="business-details">
-              <span>대표: 홍길동</span>
-              <span className="divider">|</span>
-              <span>사업자등록번호: 123-45-67890</span>
+              <span>대표: 김현옥</span>
             </div>
             <div className="business-details">
-              <span>주소: 서울특별시 강남구 테헤란로 123, 2층</span>
+              <span>주소: 경기 시흥시 승지로 75 1층</span>
             </div>
             <div className="business-details">
-              <span>전화: 02-1234-5678</span>
+              <span>전화: 031-312-7426</span>
               <span className="divider">|</span>
-              <span>이메일: contact@cutstory.kr</span>
+              <span>이메일: wulovesk@naver.com</span>
             </div>
           </div>
         </div>
