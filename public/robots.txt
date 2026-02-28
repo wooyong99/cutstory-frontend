@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /mypage
+
+Sitemap: https://cut-story.com/sitemap.xml
