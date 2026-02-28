@@ -214,6 +214,20 @@ export function SignupPage() {
               <p className="auth-subtitle">새 계정을 만들어보세요</p>
             </div>
 
+            <a
+              href={`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/kakao`}
+              className="kakao-login-button"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd" d="M9 1C4.58 1 1 3.79 1 7.21C1 9.28 2.44 11.1 4.59 12.17L3.72 15.56C3.66 15.78 3.91 15.96 4.1 15.83L8.05 13.28C8.36 13.31 8.68 13.33 9 13.33C13.42 13.33 17 10.54 17 7.12C17 3.79 13.42 1 9 1Z" fill="currentColor"/>
+              </svg>
+              카카오로 시작하기
+            </a>
+
+            <div className="auth-divider">
+              <span>또는</span>
+            </div>
+
             <form className="auth-form" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-field">

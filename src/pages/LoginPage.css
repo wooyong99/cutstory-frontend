@@ -166,6 +166,57 @@
   margin: 0;
 }
 
+/* 카카오 로그인 버튼 */
+.kakao-login-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.9375rem;
+  background-color: #FEE500;
+  color: rgba(0, 0, 0, 0.85);
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.kakao-login-button:hover {
+  background-color: #F5DC00;
+  transform: translateY(-1px);
+}
+
+.kakao-login-button:active {
+  transform: translateY(0);
+}
+
+/* "또는" 구분선 */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.25rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.auth-divider span {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
 /* 폼 스타일 */
 .auth-form {
   display: flex;
