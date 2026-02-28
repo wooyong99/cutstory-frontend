@@ -31,6 +31,9 @@ export function AdminLayout() {
             <NavLink to="/admin/menus" className={({ isActive }) => `admin-nav-link${isActive ? ' active' : ''}`}>
               메뉴 관리
             </NavLink>
+            <NavLink to="/admin/reservations" className={({ isActive }) => `admin-nav-link${isActive ? ' active' : ''}`}>
+              예약 관리
+            </NavLink>
           </nav>
         </aside>
         <main className="admin-content">
