@@ -107,3 +107,17 @@ export function formatDuration(minutes: number): string {
 export function formatPrice(price: number): string {
   return `${price.toLocaleString()}원`;
 }
+
+/**
+ * API 시간 문자열("HH:mm:ss") → 표시용 "HH:mm" 변환
+ */
+export function apiTimeToDisplay(time: string): string {
+  return time.substring(0, 5);
+}
+
+/**
+ * 표시용 "HH:mm" → API 요청용 "HH:mm:ss" 변환
+ */
+export function displayTimeToApi(time: string): string {
+  return `${time}:00`;
+}

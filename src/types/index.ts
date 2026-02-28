@@ -93,27 +93,73 @@ export interface SelectedMenu {
   requiredSlots: number; // 필요한 30분 슬롯 수
 }
 
+// 예약 상태 (실제 API: CONFIRMED / CANCELLED / COMPLETED)
+export type ReservationStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+
 // 예약 관련 타입
 export interface TimeSlot {
   time: string; // "10:00", "10:30" 등 (30분 단위)
-  available: boolean;
+  disabled: boolean;
 }
 
-// API에서 날짜별 슬롯 응답
-export interface DateSlotsResponse {
-  date: string; // "2026-01-20"
-  slots: TimeSlot[];
+// 서버 응답: 가용 시간 슬롯 (time: "HH:mm:ss" 문자열)
+export interface TimeSlotResponse {
+  time: string;
+  disabled: boolean;
 }
 
-export interface Reservation {
-  id: string;
-  userId: string;
-  menuId: string;
-  optionIds?: string[];
-  date: string; // YYYY-MM-DD
-  startTime: string; // HH:mm (시작 시간)
-  endTime: string; // HH:mm (종료 시간)
-  durationMinutes: number;
+// 서버 응답: 예약 옵션
+export interface OptionResponse {
+  optionName: string;
+  optionPrice: number;
+  optionDuration: number;
+}
+
+// 서버 응답: 예약 정보 (시간 필드는 "HH:mm:ss" 문자열)
+export interface ReservationResponse {
+  id: number;
+  reservationDate: string;
+  startTime: string;
+  endTime: string;
+  status: ReservationStatus;
+  menuName: string;
+  menuPrice: number;
+  menuDuration: number;
+  totalPrice: number;
+  totalDuration: number;
+  options: OptionResponse[];
+  createdAt: string;
+}
+
+// 예약 생성 요청 (startTime: "HH:mm:ss" 문자열)
+export interface CreateReservationRequest {
+  reservationDate: string;
+  startTime: string;
+  menuId: number;
+  optionIds: number[];
+}
+
+// 관리자 응답: 예약 옵션
+export interface AdminOptionResponse {
+  optionName: string;
+  optionPrice: number;
+  optionDuration: number;
+}
+
+// 관리자 응답: 예약 정보 (userId 포함)
+export interface AdminReservationResponse {
+  id: number;
+  userId: number;
+  reservationDate: string;
+  startTime: string;
+  endTime: string;
+  status: ReservationStatus;
+  menuName: string;
+  menuPrice: number;
+  menuDuration: number;
+  totalPrice: number;
+  totalDuration: number;
+  options: AdminOptionResponse[];
   createdAt: string;
 }
 
@@ -138,6 +184,35 @@ export interface MenuListResponse {
   maxDuration: number;
   price: number;
   mainImage: string;
+}
+
+// 메뉴 옵션 상세 응답
+export interface MenuOptionDetailResponse {
+  id: number;
+  name: string;
+  duration: number;
+  price: number;
+  description: string;
+}
+
+// 메뉴 이미지 응답
+export interface MenuImageResponse {
+  id: number;
+  imageUrl: string;
+  sortOrder: number;
+}
+
+// 메뉴 상세 응답
+export interface MenuDetailResponse {
+  id: number;
+  name: string;
+  description: string;
+  minDuration: number;
+  maxDuration: number;
+  price: number;
+  mainImage: string;
+  detailImages: MenuImageResponse[];
+  options: MenuOptionDetailResponse[];
 }
 
 // 카테고리 생성 요청
