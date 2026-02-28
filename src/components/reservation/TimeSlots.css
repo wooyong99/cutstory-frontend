@@ -4,6 +4,32 @@
   border-radius: 16px;
 }
 
+/* 토글 버튼 */
+.time-slots-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.toggle-button {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 100px;
+  background-color: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-button.active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
 /* 시간 섹션 (오전/오후) */
 .time-slots-section {
   margin-bottom: 1.25rem;
