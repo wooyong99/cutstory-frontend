@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
+import { fetchMyReservations, cancelMyReservation } from '../services/api';
+import { apiTimeToDisplay, formatPrice } from '../utils/timeSlot';
 import { EmptyState } from '../components/common/EmptyState';
+import type { ReservationResponse, ReservationStatus } from '../types';
 import './MyPage.css';
 
 function formatPhone(phone: string): string {
@@ -17,17 +21,58 @@ const ROLE_LABEL: Record<string, string> = {
   ADMIN: '관리자',
 };
 
+const STATUS_LABEL: Record<ReservationStatus, string> = {
+  CONFIRMED: '예약 확정',
+  CANCELLED: '취소됨',
+  COMPLETED: '완료',
+};
+
 type TabKey = 'all' | 'upcoming' | 'past';
+
+function isUpcoming(r: ReservationResponse): boolean {
+  const today = new Date().toISOString().split('T')[0];
+  return r.status === 'CONFIRMED' && r.reservationDate >= today;
+}
+
+function isPast(r: ReservationResponse): boolean {
+  const today = new Date().toISOString().split('T')[0];
+  return r.status === 'COMPLETED' || r.status === 'CANCELLED' || r.reservationDate < today;
+}
 
 export function MyPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
+
+  const { data: reservations, isLoading: isReservationsLoading } = useQuery({
+    queryKey: ['myReservations'],
+    queryFn: fetchMyReservations,
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelMyReservation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myReservations'] });
+    },
+  });
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  const handleCancel = (id: number) => {
+    if (window.confirm('예약을 취소하시겠습니까?')) {
+      cancelMutation.mutate(id);
+    }
+  };
+
+  const filteredReservations = (reservations ?? []).filter((r) => {
+    if (activeTab === 'upcoming') return isUpcoming(r);
+    if (activeTab === 'past') return isPast(r);
+    return true;
+  });
 
   return (
     <div className="mypage">
@@ -101,30 +146,45 @@ export function MyPage() {
             전체
           </button>
           <button
-            className="reservation-tab"
+            className={`reservation-tab ${activeTab === 'upcoming' ? 'active' : ''}`}
             role="tab"
-            aria-pressed={false}
-            disabled
+            aria-pressed={activeTab === 'upcoming'}
+            onClick={() => setActiveTab('upcoming')}
           >
             예정된 예약
           </button>
           <button
-            className="reservation-tab"
+            className={`reservation-tab ${activeTab === 'past' ? 'active' : ''}`}
             role="tab"
-            aria-pressed={false}
-            disabled
+            aria-pressed={activeTab === 'past'}
+            onClick={() => setActiveTab('past')}
           >
             지난 예약
           </button>
         </div>
 
-        <EmptyState
-          icon="📋"
-          title="예약 내역이 없습니다"
-          description="아직 예약한 시술이 없어요. 원하는 스타일을 찾아보세요!"
-          actionLabel="메뉴 보기"
-          onAction={() => navigate('/')}
-        />
+        {isReservationsLoading ? (
+          <div className="reservation-loading">불러오는 중...</div>
+        ) : filteredReservations.length === 0 ? (
+          <EmptyState
+            icon="📋"
+            title="예약 내역이 없습니다"
+            description="아직 예약한 시술이 없어요. 원하는 스타일을 찾아보세요!"
+            actionLabel="메뉴 보기"
+            onAction={() => navigate('/')}
+          />
+        ) : (
+          <div className="reservation-list">
+            {filteredReservations.map((reservation) => (
+              <ReservationCard
+                key={reservation.id}
+                reservation={reservation}
+                onCancel={handleCancel}
+                isCancelling={cancelMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* 계정 관리 */}
@@ -150,6 +210,56 @@ export function MyPage() {
           </button>
         </div>
       </section>
+    </div>
+  );
+}
+
+interface ReservationCardProps {
+  reservation: ReservationResponse;
+  onCancel: (id: number) => void;
+  isCancelling: boolean;
+}
+
+function ReservationCard({ reservation, onCancel, isCancelling }: ReservationCardProps) {
+  const startTime = apiTimeToDisplay(reservation.startTime);
+  const endTime = apiTimeToDisplay(reservation.endTime);
+  const statusClass = reservation.status.toLowerCase();
+
+  return (
+    <div className="reservation-card">
+      <div className="reservation-card-header">
+        <span className={`reservation-status status-${statusClass}`}>
+          {STATUS_LABEL[reservation.status]}
+        </span>
+        <span className="reservation-date">{reservation.reservationDate}</span>
+      </div>
+
+      <div className="reservation-card-body">
+        <span className="reservation-menu-name">{reservation.menuName}</span>
+        <span className="reservation-time">{startTime} ~ {endTime}</span>
+
+        {reservation.options.length > 0 && (
+          <div className="reservation-options">
+            {reservation.options.map((opt, i) => (
+              <span key={i} className="reservation-option-tag">{opt.optionName}</span>
+            ))}
+          </div>
+        )}
+
+        <span className="reservation-price">{formatPrice(reservation.totalPrice)}</span>
+      </div>
+
+      {reservation.status === 'CONFIRMED' && (
+        <div className="reservation-card-actions">
+          <button
+            className="reservation-cancel-button"
+            onClick={() => onCancel(reservation.id)}
+            disabled={isCancelling}
+          >
+            {isCancelling ? '취소 중...' : '예약 취소'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

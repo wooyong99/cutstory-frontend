@@ -168,6 +168,133 @@
   cursor: not-allowed;
 }
 
+/* 예약 로딩 */
+.reservation-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* 예약 목록 */
+.reservation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* 예약 카드 */
+.reservation-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.reservation-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.reservation-status {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-confirmed {
+  background-color: #eef2ff;
+  color: #6366f1;
+}
+
+.status-cancelled {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.status-completed {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.reservation-date {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.reservation-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.reservation-menu-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.reservation-time {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.reservation-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.reservation-option-tag {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 100px;
+}
+
+.reservation-price {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.reservation-card-actions {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.reservation-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #dc2626;
+  background-color: transparent;
+  border: 1.5px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reservation-cancel-button:hover {
+  background-color: #fef2f2;
+}
+
+.reservation-cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* 계정 관리 */
 .account-actions {
   display: flex;
