@@ -1,5 +1,4 @@
-import type { MenuItem, TimeSlot, DateSlotsResponse, User, SignupFormData, SignUpRequest, LoginResponse, Reservation, ApiResponse, ApiError, UserListItem, CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest, CreateMenuRequest, MenuListResponse } from '../types';
-import { calculateEndTime, generateAllSlotTimes } from '../utils/timeSlot';
+import type { User, SignupFormData, SignUpRequest, LoginResponse, ApiResponse, ApiError, UserListItem, CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest, CreateMenuRequest, MenuListResponse, MenuDetailResponse, TimeSlotResponse, ReservationResponse, CreateReservationRequest, AdminReservationResponse } from '../types';
 import { useAuthStore } from '../stores/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -85,109 +84,57 @@ export async function fetchMenusByCategory(categoryId: number): Promise<MenuList
   return apiClient<MenuListResponse[]>(`/api/v1/categories/${categoryId}/menus`);
 }
 
-// ── 메뉴 상세 API (Mock — 상세 API 스키마 확정 후 교체) ──
+// ── 메뉴 상세 API ──
 
-const mockMenuItems: MenuItem[] = [
-  {
-    id: 'cut-male', category: 'cut', name: '남자 컷', description: '샴푸 별도',
-    basePrice: 10000, durationMinutes: 30,
-    options: [{ id: 'opt-shampoo', name: '샴푸', description: '컷트 시 샴푸', price: 3000, additionalMinutes: 10 }],
-  },
-  {
-    id: 'cut-female', category: 'cut', name: '여자 컷', description: '샴푸 별도',
-    basePrice: 15000, durationMinutes: 60,
-    options: [{ id: 'opt-shampoo', name: '샴푸', description: '컷트 시 샴푸', price: 3000, additionalMinutes: 10 }],
-  },
-  {
-    id: 'color-root', category: 'color', name: '뿌리 염색', description: '새치/부분 염색',
-    basePrice: 30000, durationMinutes: 90,
-    options: [{ id: 'opt-cut-color', name: '컷트 추가', description: '염색 시 컷트', price: 10000, additionalMinutes: 30 }],
-  },
-  {
-    id: 'color-full', category: 'color', name: '전체 염색', description: '길이/상태에 따라 상이',
-    basePrice: 50000, priceNote: '~', durationMinutes: 120,
-    options: [{ id: 'opt-cut-color', name: '컷트 추가', description: '염색 시 컷트', price: 10000, additionalMinutes: 30 }],
-  },
-  { id: 'perm-down', category: 'perm', name: '다운펌', description: '볼륨/결 정리', basePrice: 20000, durationMinutes: 60 },
-  { id: 'perm-normal', category: 'perm', name: '일반 펌', description: '기본 펌', basePrice: 50000, priceNote: '~', durationMinutes: 120 },
-  { id: 'perm-magic', category: 'perm', name: '매직', description: '스트레이트', basePrice: 60000, priceNote: '~', durationMinutes: 150 },
-  { id: 'perm-volume-magic', category: 'perm', name: '볼륨 매직', description: '볼륨 + 매직', basePrice: 70000, priceNote: '~', durationMinutes: 180 },
-];
-
-export async function fetchMenuItemById(id: string): Promise<MenuItem | null> {
-  await delay(300);
-  return mockMenuItems.find((item) => item.id === id) || null;
+export async function fetchMenuDetail(id: number): Promise<MenuDetailResponse> {
+  return apiClient<MenuDetailResponse>(`/api/v1/menus/${id}`);
 }
 
-// ── 예약 API (Mock) ──
+// ── 예약 API ──
 
-const mockReservedSlots: Record<string, string[]> = {
-  '2026-01-20': ['10:00', '10:30', '14:00', '14:30', '15:00', '16:00'],
-  '2026-01-21': ['11:00', '11:30', '15:00', '15:30', '16:00', '16:30'],
-  '2026-01-22': ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30'],
-};
-
-export async function fetchDateSlots(date: string): Promise<DateSlotsResponse> {
-  await delay(400);
-
-  const reservedTimes = mockReservedSlots[date] || [];
-  const allTimes = generateAllSlotTimes();
-
-  const slots: TimeSlot[] = allTimes.map((time) => ({
-    time,
-    available: !reservedTimes.includes(time),
-  }));
-
-  return { date, slots };
+export async function fetchAvailableSlots(date: string, menuId: number, optionIds: number[]): Promise<TimeSlotResponse[]> {
+  const params = new URLSearchParams();
+  params.append('date', date);
+  params.append('menuId', String(menuId));
+  for (const id of optionIds) {
+    params.append('optionIds', String(id));
+  }
+  return apiClient<TimeSlotResponse[]>(`/api/v1/reservations/available-slots?${params.toString()}`);
 }
 
-export interface CreateReservationParams {
-  menuId: string;
-  optionIds?: string[];
-  date: string;
-  startTime: string;
-  durationMinutes: number;
+export async function fetchMyReservations(): Promise<ReservationResponse[]> {
+  return apiClient<ReservationResponse[]>('/api/v1/reservations/me');
 }
 
-export async function createReservation(params: CreateReservationParams): Promise<Reservation> {
-  await delay(600);
+export async function createReservation(data: CreateReservationRequest): Promise<ReservationResponse> {
+  return apiClient<ReservationResponse>('/api/v1/reservations', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
 
-  const { menuId, optionIds, date, startTime, durationMinutes } = params;
+export async function cancelMyReservation(id: number): Promise<void> {
+  return apiClient<void>(`/api/v1/reservations/${id}`, {
+    method: 'DELETE',
+  });
+}
 
-  if (Math.random() < 0.1) {
-    throw new Error('방금 다른 사용자가 예약했어요. 다른 시간을 선택해주세요.');
-  }
+// ── 관리자 예약 API ──
 
-  const endTime = calculateEndTime(startTime, durationMinutes);
+export async function fetchAdminReservations(date: string): Promise<AdminReservationResponse[]> {
+  return adminApiClient<AdminReservationResponse[]>(`/api/v1/admin/reservations?date=${date}`);
+}
 
-  const reservation: Reservation = {
-    id: Math.random().toString(36).substring(7),
-    userId: '1',
-    menuId,
-    optionIds,
-    date,
-    startTime,
-    endTime,
-    durationMinutes,
-    createdAt: new Date().toISOString(),
-  };
+export async function adminCancelReservation(id: number): Promise<void> {
+  return adminApiClient<void>(`/api/v1/admin/reservations/${id}/cancel`, {
+    method: 'PATCH',
+  });
+}
 
-  if (!mockReservedSlots[date]) {
-    mockReservedSlots[date] = [];
-  }
-
-  const allTimes = generateAllSlotTimes();
-  const startIndex = allTimes.indexOf(startTime);
-  const slotsToReserve = Math.ceil(durationMinutes / 30);
-
-  for (let i = 0; i < slotsToReserve; i++) {
-    const time = allTimes[startIndex + i];
-    if (time && !mockReservedSlots[date].includes(time)) {
-      mockReservedSlots[date].push(time);
-    }
-  }
-
-  return reservation;
+export async function adminCompleteReservation(id: number): Promise<void> {
+  return adminApiClient<void>(`/api/v1/admin/reservations/${id}/complete`, {
+    method: 'PATCH',
+  });
 }
 
 // ── 인증 API ──
@@ -265,7 +212,3 @@ export async function createMenu(data: CreateMenuRequest): Promise<void> {
   });
 }
 
-// 유틸리티
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
