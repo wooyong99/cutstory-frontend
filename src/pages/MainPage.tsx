@@ -13,9 +13,9 @@ interface MenuWithCategory extends MenuListResponse {
 }
 
 const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=600&h=400&fit=crop',
+  { src: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop', alt: '헤어살롱 인테리어와 스타일링 공간' },
+  { src: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop', alt: '전문 헤어 스타일링 시술 모습' },
+  { src: 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=600&h=400&fit=crop', alt: '헤어 컬러링 및 염색 시술' },
 ];
 
 function formatDurationRange(min: number, max: number): string {
@@ -92,6 +92,9 @@ export function MainPage() {
 
   return (
     <div className="main-page">
+      <title>컷스토리 헤어살롱 | 시흥시 능곡동 미용실 - 커트, 염색, 펌 예약</title>
+      <meta name="robots" content="index, follow" />
+
       {/* 히어로 섹션 */}
       <section className="hero-section">
         <div className="hero-content">
@@ -123,9 +126,9 @@ export function MainPage() {
         </div>
         <div className="hero-visual">
           <div className="hero-image-grid">
-            {HERO_IMAGES.map((src, i) => (
+            {HERO_IMAGES.map((img, i) => (
               <div key={i} className="hero-image-item">
-                <img src={src} alt="" />
+                <img src={img.src} alt={img.alt} />
               </div>
             ))}
           </div>

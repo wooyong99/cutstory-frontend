@@ -154,8 +154,21 @@ export function StyleDetailPage() {
       ? formatDuration(menu.minDuration)
       : `${formatDuration(menu.minDuration)}~${formatDuration(menu.maxDuration)}`;
 
+  const pageTitle = `${menu.name} - 컷스토리 헤어살롱 | 시흥시 미용실`;
+  const pageDescription = menu.description
+    ? `${menu.name} - ${menu.description}. 컷스토리 헤어살롱에서 온라인 예약하세요.`
+    : `${menu.name} 시술을 컷스토리 헤어살롱에서 온라인으로 예약하세요. 시흥시 능곡동 전문 헤어살롱.`;
+
   return (
     <div className="detail-page">
+      <title>{pageTitle}</title>
+      <meta name="description" content={pageDescription} />
+      <meta name="robots" content="index, follow" />
+      <meta property="og:title" content={pageTitle} />
+      <meta property="og:description" content={pageDescription} />
+      <meta property="og:image" content={imageUrl} />
+      <meta property="og:url" content={`https://cut-story.com/styles/${menuId}`} />
+
       {/* 뒤로가기 */}
       <Link to="/" className="back-button">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

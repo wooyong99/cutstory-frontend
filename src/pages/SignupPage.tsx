@@ -130,6 +130,9 @@ export function SignupPage() {
 
   return (
     <div className="auth-page">
+      <title>회원가입 - 컷스토리 헤어살롱</title>
+      <meta name="robots" content="noindex, nofollow" />
+
       <div className="auth-container">
         {/* 왼쪽 비주얼 영역 */}
         <div className="auth-visual">

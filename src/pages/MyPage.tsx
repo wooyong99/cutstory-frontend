@@ -76,6 +76,9 @@ export function MyPage() {
 
   return (
     <div className="mypage">
+      <title>마이페이지 - 컷스토리 헤어살롱</title>
+      <meta name="robots" content="noindex, nofollow" />
+
       <h1 className="mypage-title">마이페이지</h1>
 
       {/* 프로필 정보 */}
