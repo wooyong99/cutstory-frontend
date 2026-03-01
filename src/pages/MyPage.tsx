@@ -21,6 +21,11 @@ const ROLE_LABEL: Record<string, string> = {
   ADMIN: '관리자',
 };
 
+const REGISTRATION_LABEL: Record<string, string> = {
+  GENERAL: '이메일 가입',
+  KAKAO: '카카오 가입',
+};
+
 const STATUS_LABEL: Record<ReservationStatus, string> = {
   CONFIRMED: '예약 확정',
   CANCELLED: '취소됨',
@@ -101,6 +106,9 @@ export function MyPage() {
             <span className="profile-name">{user?.username}</span>
             <span className="profile-role-badge">
               {ROLE_LABEL[user?.role ?? ''] ?? user?.role}
+            </span>
+            <span className={`profile-registration-badge ${user?.registrationType === 'KAKAO' ? 'kakao' : 'general'}`}>
+              {REGISTRATION_LABEL[user?.registrationType ?? ''] ?? user?.registrationType}
             </span>
           </div>
         </div>

@@ -1,6 +1,9 @@
 // 사용자 역할
 export type UserRole = 'USER' | 'ADMIN';
 
+// 가입 유형
+export type RegistrationType = 'GENERAL' | 'KAKAO';
+
 // 사용자 관련 타입 (GET /api/v1/users/me 응답)
 export interface User {
   id: number;
@@ -9,6 +12,7 @@ export interface User {
   age: number;
   phone: string;
   role: UserRole;
+  registrationType: RegistrationType;
 }
 
 // 관리자 회원 목록 조회 응답
