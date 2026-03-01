@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchCategories, fetchMenusByCategory } from '../../services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchCategories, fetchMenusByCategory, deleteMenu } from '../../services/api';
 import type { MenuListResponse } from '../../types';
 import './AdminPage.css';
 
@@ -10,6 +10,20 @@ interface MenuWithCategory extends MenuListResponse {
 
 export function MenusPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteMenu,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'menus'] });
+    },
+  });
+
+  const handleDelete = (menuId: number, menuName: string) => {
+    if (window.confirm(`"${menuName}" 메뉴를 삭제하시겠습니까?`)) {
+      deleteMutation.mutate(menuId);
+    }
+  };
 
   const { data: categories } = useQuery({
     queryKey: ['admin', 'categories'],
@@ -79,6 +93,14 @@ export function MenusPage() {
                       onClick={() => navigate(`/admin/menus/${menu.id}/edit`)}
                     >
                       수정
+                    </button>
+                    <button
+                      className="delete-button"
+                      style={{ padding: '0.375rem 0.75rem', fontSize: '0.8125rem', marginLeft: '0.5rem' }}
+                      onClick={() => handleDelete(menu.id, menu.name)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      삭제
                     </button>
                   </td>
                 </tr>

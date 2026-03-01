@@ -226,3 +226,9 @@ export async function updateMenu(menuId: number, data: CreateMenuRequest): Promi
   });
 }
 
+export async function deleteMenu(menuId: number): Promise<void> {
+  return adminApiClient<void>(`/api/v1/admin/menus/${menuId}`, {
+    method: 'DELETE',
+  });
+}
+
