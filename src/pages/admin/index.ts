@@ -4,4 +4,5 @@ export { UsersPage } from './UsersPage';
 export { CategoriesPage } from './CategoriesPage';
 export { MenusPage } from './MenusPage';
 export { MenuCreatePage } from './MenuCreatePage';
+export { MenuEditPage } from './MenuEditPage';
 export { ReservationsPage } from './ReservationsPage';

@@ -219,3 +219,10 @@ export async function createMenu(data: CreateMenuRequest): Promise<void> {
   });
 }
 
+export async function updateMenu(menuId: number, data: CreateMenuRequest): Promise<void> {
+  return adminApiClient<void>(`/api/v1/admin/menus/${menuId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+

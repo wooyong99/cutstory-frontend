@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout, AdminLayout } from './components/layout';
-import { SignupPage, LoginPage, OAuthCallbackPage, MainPage, StyleDetailPage, MyPage, AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage, ReservationsPage } from './pages';
+import { SignupPage, LoginPage, OAuthCallbackPage, MainPage, StyleDetailPage, MyPage, AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage, MenuEditPage, ReservationsPage } from './pages';
 import { useInitAuth } from './hooks/useInitAuth';
 import { useAuthStore } from './stores/authStore';
 
@@ -71,6 +71,7 @@ function AppRoutes() {
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="menus" element={<MenusPage />} />
         <Route path="menus/create" element={<MenuCreatePage />} />
+        <Route path="menus/:menuId/edit" element={<MenuEditPage />} />
         <Route path="reservations" element={<ReservationsPage />} />
       </Route>
     </Routes>

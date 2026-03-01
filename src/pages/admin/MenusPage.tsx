@@ -62,6 +62,7 @@ export function MenusPage() {
                 <th>메뉴명</th>
                 <th>카테고리</th>
                 <th>가격</th>
+                <th>관리</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +72,15 @@ export function MenusPage() {
                   <td>{menu.name}</td>
                   <td>{menu.categoryName}</td>
                   <td>{menu.price.toLocaleString()}원</td>
+                  <td>
+                    <button
+                      className="admin-create-button"
+                      style={{ padding: '0.375rem 0.75rem', fontSize: '0.8125rem' }}
+                      onClick={() => navigate(`/admin/menus/${menu.id}/edit`)}
+                    >
+                      수정
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

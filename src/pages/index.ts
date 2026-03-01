@@ -4,4 +4,4 @@ export { OAuthCallbackPage } from './OAuthCallbackPage';
 export { MainPage } from './MainPage';
 export { StyleDetailPage } from './StyleDetailPage';
 export { MyPage } from './MyPage';
-export { AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage, ReservationsPage } from './admin';
+export { AdminLoginPage, AdminSignupPage, UsersPage, CategoriesPage, MenusPage, MenuCreatePage, MenuEditPage, ReservationsPage } from './admin';
