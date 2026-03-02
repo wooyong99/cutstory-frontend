@@ -20,7 +20,7 @@
   background-color: white;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .admin-table {
@@ -576,4 +576,116 @@
 
 .form-cancel-button:hover {
   background-color: #f9fafb;
+}
+
+/* ── 반응형: 768px 이하 ── */
+@media (max-width: 768px) {
+  .admin-page-title {
+    font-size: 1.25rem;
+  }
+
+  .admin-page-header-row {
+    flex-direction: column;
+  }
+
+  .admin-table {
+    min-width: 560px;
+  }
+
+  .rv-summary-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .rv-filter-card {
+    padding: 1rem;
+  }
+
+  .rv-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .rv-date-inputs {
+    flex-wrap: wrap;
+  }
+
+  .rv-date-input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rv-quick-buttons {
+    flex-wrap: wrap;
+  }
+
+  .admin-form-wrapper {
+    padding: 1rem;
+  }
+
+  .form-option-card {
+    padding: 0.75rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .admin-action-buttons {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── 반응형: 480px 이하 ── */
+@media (max-width: 480px) {
+  .admin-page-title {
+    font-size: 1.125rem;
+  }
+
+  .rv-summary-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .rv-summary-card {
+    padding: 0.75rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rv-summary-count {
+    font-size: 1.25rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+
+  .rv-filter-card {
+    padding: 0.75rem;
+  }
+
+  .rv-quick-btn {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .form-dynamic-row {
+    flex-wrap: wrap;
+  }
+
+  .form-dynamic-row .form-input {
+    min-width: 0;
+  }
 }
