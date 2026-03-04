@@ -16,7 +16,42 @@ export class ApiException extends Error {
   }
 }
 
-async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+// ── 토큰 재발급 ──
+
+let refreshPromise: Promise<string | null> | null = null;
+
+async function reissueToken(): Promise<string | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/reissue`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const body: ApiResponse<LoginResponse> = await response.json();
+
+    if (body.isSuccess && body.data) {
+      useAuthStore.getState().login(body.data.accessToken);
+      return body.data.accessToken;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function getNewToken(): Promise<string | null> {
+  if (!refreshPromise) {
+    refreshPromise = reissueToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+// ── API 클라이언트 ──
+
+async function fetchWithAuth<T>(baseUrl: string, endpoint: string, options?: RequestInit): Promise<T> {
   const token = useAuthStore.getState().accessToken;
 
   const headers: Record<string, string> = {
@@ -26,11 +61,26 @@ async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T>
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  let response = await fetch(`${baseUrl}${endpoint}`, {
     credentials: 'include',
     headers,
     ...options,
   });
+
+  if (response.status === 401) {
+    const newToken = await getNewToken();
+    if (newToken) {
+      headers['Authorization'] = `Bearer ${newToken}`;
+      response = await fetch(`${baseUrl}${endpoint}`, {
+        credentials: 'include',
+        headers,
+        ...options,
+      });
+    } else {
+      useAuthStore.getState().logout();
+      throw new ApiException('UNAUTHORIZED', '인증이 만료되었습니다. 다시 로그인해주세요.');
+    }
+  }
 
   const body: ApiResponse<T> = await response.json();
 
@@ -45,33 +95,12 @@ async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T>
   return body.data as T;
 }
 
+async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  return fetchWithAuth<T>(API_BASE_URL, endpoint, options);
+}
+
 async function adminApiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const token = useAuthStore.getState().accessToken;
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${ADMIN_API_BASE_URL}${endpoint}`, {
-    credentials: 'include',
-    headers,
-    ...options,
-  });
-
-  const body: ApiResponse<T> = await response.json();
-
-  if (!body.isSuccess || body.error) {
-    const error = body.error as ApiError;
-    throw new ApiException(
-      error?.errorCode ?? 'UNKNOWN_ERROR',
-      error?.errorMessage ?? '알 수 없는 오류가 발생했습니다.',
-    );
-  }
-
-  return body.data as T;
+  return fetchWithAuth<T>(ADMIN_API_BASE_URL, endpoint, options);
 }
 
 // ── 카테고리 API (사용자) ──
