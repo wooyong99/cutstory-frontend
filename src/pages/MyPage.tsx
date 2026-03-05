@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { fetchMyReservations, cancelMyReservation } from '../services/api';
 import { apiTimeToDisplay, formatPrice } from '../utils/timeSlot';
-import { EmptyState } from '../components/common/EmptyState';
+import { EmptyState, ConfirmModal } from '../components/common';
 import type { ReservationResponse, ReservationStatus } from '../types';
 import './MyPage.css';
 
@@ -49,6 +49,7 @@ export function MyPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabKey>('all');
+  const [cancelTargetId, setCancelTargetId] = useState<number | null>(null);
 
   const { data: reservations, isLoading: isReservationsLoading } = useQuery({
     queryKey: ['myReservations'],
@@ -58,6 +59,7 @@ export function MyPage() {
   const cancelMutation = useMutation({
     mutationFn: cancelMyReservation,
     onSuccess: () => {
+      setCancelTargetId(null);
       queryClient.invalidateQueries({ queryKey: ['myReservations'] });
     },
   });
@@ -68,9 +70,7 @@ export function MyPage() {
   };
 
   const handleCancel = (id: number) => {
-    if (window.confirm('예약을 취소하시겠습니까?')) {
-      cancelMutation.mutate(id);
-    }
+    setCancelTargetId(id);
   };
 
   const filteredReservations = (reservations ?? []).filter((r) => {
@@ -221,6 +221,17 @@ export function MyPage() {
           </button>
         </div>
       </section>
+
+      <ConfirmModal
+        isOpen={cancelTargetId !== null}
+        onClose={() => setCancelTargetId(null)}
+        onConfirm={() => cancelTargetId !== null && cancelMutation.mutate(cancelTargetId)}
+        title="예약을 취소하시겠습니까?"
+        description="취소된 예약은 되돌릴 수 없습니다."
+        confirmLabel="예약 취소"
+        cancelLabel="돌아가기"
+        isLoading={cancelMutation.isPending}
+      />
     </div>
   );
 }
