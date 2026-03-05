@@ -92,8 +92,15 @@ export function StyleDetailPage() {
     },
   });
 
-  // 컴포넌트 언마운트 시 선택 상태 초기화
+  // 컴포넌트 마운트 시 오늘 날짜 기본 선택 & 언마운트 시 초기화
   useEffect(() => {
+    if (!selectedDate) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      setSelectedDate(`${yyyy}-${mm}-${dd}`);
+    }
     return () => resetSelection();
   }, []);
 
