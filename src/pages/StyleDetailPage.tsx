@@ -80,7 +80,7 @@ export function StyleDetailPage() {
       }),
     onSuccess: () => {
       setShowSuccessToast(true);
-      resetSelection();
+      setSelectedTime(null);
       setSelectedOptionIds([]);
       queryClient.invalidateQueries({
         queryKey: ['availableSlots'],
